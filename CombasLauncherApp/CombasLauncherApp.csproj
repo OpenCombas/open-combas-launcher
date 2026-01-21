@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <PlatformTarget>x64</PlatformTarget>
+    <StartupObject>CombasLauncherApp.App</StartupObject>
+    <ApplicationIcon>UI\Resources\OpenCOMBAS.ico</ApplicationIcon>
+    <UseWindowsForms>True</UseWindowsForms>
+    <AssemblyVersion>0.0.0.1</AssemblyVersion>
+    <FileVersion>0.0.0.1</FileVersion>
+    <Version>0.0.1</Version>
+    <InformationalVersion>0.0.1</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <OutputPath>..\Build\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="ISO\README.txt" />
+    <None Remove="ParamDefinitions\MenuMapInfo.xml" />
+    <None Remove="tools\extract-xiso.exe" />
+    <None Remove="tools\tailscale-setup-1.86.2-amd64.msi" />
+    <None Remove="UI\Resources\OpenCOMBAS.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="ISO\README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ParamDefinitions\MenuMapInfo.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\extract-xiso.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\tailscale-setup-1.86.2-amd64.msi">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="UI\Resources\OpenCOMBAS.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SoulsFormats\SoulsFormats.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="UI\Resources\OpenCOMBAS.ico" />
+  </ItemGroup>
+
+</Project>

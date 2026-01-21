@@ -1,0 +1,58 @@
+﻿<Window x:Class="CombasLauncherApp.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CombasLauncherApp" xmlns:ui="clr-namespace:CombasLauncherApp.UI"
+        xmlns:homePage="clr-namespace:CombasLauncherApp.UI.Pages.HomePage"
+        xmlns:developerPages="clr-namespace:CombasLauncherApp.UI.Pages.DeveloperPages"
+        mc:Ignorable="d"
+        Title="{Binding Version}" Height="450" Width="800" Background="{StaticResource MainBackground}" d:DataContext="{d:DesignInstance ui:MainWindowViewModel}">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type homePage:HomePageViewModel}">
+            <homePage:HomePage />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type developerPages:DeveloperHomePageViewModel}">
+            <developerPages:DeveloperHomePage />
+        </DataTemplate>
+    </Window.Resources>
+    
+    
+    <Grid  Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ContentPresenter Grid.Row="0" Content="{Binding CurrentPage}"/> 
+        <Grid Grid.Row="1">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Developer Menu" Padding="4" Command="{Binding OpenDeveloperMenuCommand}"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Pulsing Loading Overlay -->
+        <Grid x:Name="LoadingOverlay"
+              Background="#80000000"
+              Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
+              Panel.ZIndex="100">
+            <TextBlock Text="Loading..."
+                       Foreground="White"
+                       FontSize="36"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center">
+                <TextBlock.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                        <BeginStoryboard>
+                            <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                 From="1.0" To="0.3"
+                                                 Duration="0:0:0.8"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </TextBlock.Triggers>
+            </TextBlock>
+        </Grid>
+    </Grid>
+</Window>

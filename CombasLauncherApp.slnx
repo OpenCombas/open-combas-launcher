@@ -1,0 +1,12 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="CombasLauncherApp/CombasLauncherApp.csproj">
+    <Platform Project="x64" />
+  </Project>
+  <Project Path="SoulsFormats/SoulsFormats.csproj">
+    <Platform Project="x64" />
+    <Build Solution="Debug|*" Project="false" />
+  </Project>
+</Solution>

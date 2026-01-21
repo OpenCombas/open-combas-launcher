@@ -1,0 +1,16 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+
+    <Color x:Key="DarkGreen" A="#FF" R="#3F" G="#4D" B="#40"/>
+    <Color x:Key="MetalGrey" A="#FF" R="#BF" G="#BF" B="#BB"/>
+
+
+    <SolidColorBrush x:Key="MainBackground" Color="{StaticResource DarkGreen}"/>
+
+
+
+    <SolidColorBrush x:Key="MainForeground" Color="{StaticResource MetalGrey}"/>
+
+
+</ResourceDictionary>
