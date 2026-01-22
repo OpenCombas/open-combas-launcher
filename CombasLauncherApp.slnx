@@ -7,6 +7,5 @@
   </Project>
   <Project Path="SoulsFormats/SoulsFormats.csproj">
     <Platform Project="x64" />
-    <Build Solution="Debug|*" Project="false" />
   </Project>
 </Solution>
