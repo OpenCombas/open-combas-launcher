@@ -1,1 +1,0 @@
-﻿Place your Chromehounds ISO file here, we do not instruct how to get this but there are multiple legal ways to do this.
