@@ -1,0 +1,3 @@
+[submodule "SoulsFormats"]
+	path = SoulsFormats
+	url = git@github.com:OpenCombas/SoulsFormats.git
