@@ -21,7 +21,12 @@
     <OutputPath>..\Build\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="ISO\README.txt" />
+    <Compile Remove="ISO\**" />
+    <EmbeddedResource Remove="ISO\**" />
+    <None Remove="ISO\**" />
+    <Page Remove="ISO\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="ParamDefinitions\MenuMapInfo.xml" />
     <None Remove="tools\extract-xiso.exe" />
     <None Remove="tools\tailscale-setup-1.86.2-amd64.msi" />
@@ -29,9 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="ISO\README.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="ParamDefinitions\MenuMapInfo.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
