@@ -8,6 +8,8 @@
 
         void Initialise();
 
+        void UpdateXeniaPath();
+
         bool UpdateApiAddress(string newAddress);
 
         void LunchXeniaProcess(string chromeHoundsDirectory);

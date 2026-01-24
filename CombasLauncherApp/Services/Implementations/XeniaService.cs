@@ -28,13 +28,7 @@ namespace CombasLauncherApp.Services.Implementations
         {
             try
             {
-                var exeDir = Path.GetDirectoryName(Environment.ProcessPath);
-                if (exeDir == null)
-                {
-                    throw new DirectoryNotFoundException("Could not determine the executable directory.");
-                }
-
-                var xeniaFolder = Path.Combine(exeDir, "xenia");
+                var xeniaFolder = Path.Combine(AppService.LocalAppData, "xenia");
                 if (!Directory.Exists(xeniaFolder))
                 {
                     throw new DirectoryNotFoundException($"The xenia folder was not found at: {xeniaFolder}");
@@ -62,8 +56,44 @@ namespace CombasLauncherApp.Services.Implementations
             {
                 XeniaPath = "Not Found";
                 _loggingService.LogError(ex.Message);
-                _messageBoxService.ShowError(ex.Message);
                 return false;
+            }
+        }
+
+        public void UpdateXeniaPath()
+        {
+            try
+            {
+                var xeniaFolder = Path.Combine(AppService.LocalAppData, "xenia");
+                if (!Directory.Exists(xeniaFolder))
+                {
+                    throw new DirectoryNotFoundException($"The xenia folder was not found at: {xeniaFolder}");
+                }
+
+                var exeFiles = Directory.GetFiles(xeniaFolder, "*.exe", SearchOption.TopDirectoryOnly)
+                    .Where(f => Path.GetFileName(f).ToLower().Contains("xenia"))
+                    .ToList();
+
+                if (exeFiles.Count > 1)
+                {
+                    throw new TargetParameterCountException($"There is more than one .exe that has xenia in the name. ");
+                }
+
+                if (exeFiles.Count == 0)
+                {
+                    XeniaPath = "Not Found";
+                    XeniaFound = false;
+                    return;
+                }
+
+                XeniaPath = exeFiles.First();
+                XeniaFound = true;
+            }
+            catch (Exception ex)
+            {
+                XeniaPath = "Not Found";
+                XeniaFound = false;
+                _loggingService.LogError(ex.Message);
             }
         }
 

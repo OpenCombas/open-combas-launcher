@@ -4,12 +4,8 @@ using CombasLauncherApp.Services.Interfaces;
 using CombasLauncherApp.UI.Windows.AuthEntry;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Security.Principal;
-using System.Text;
 using System.Windows;
 using Application = System.Windows.Application;
 
@@ -97,6 +93,11 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                     return;
                 }
 
+                if (!MoveXeniaFilesToLocalAppData())
+                {
+                    return;
+                }
+
                 if (!await InstallTailScaleAsync())
                 {
                     return;
@@ -128,20 +129,12 @@ namespace CombasLauncherApp.UI.Pages.HomePage
         {
             await SwitchMapPackAsync();
         }
-
-
+        
 
         private async Task SwitchMapPackAsync()
         {
             try
             {
-                if (!HasAppGotAdminRights())
-                {
-                    _loggingService.LogError("The application must be run as administrator to perform map Switching.");
-                    _messageBoxService.ShowError("Please restart the application as administrator to perform map Switching.");
-                    return;
-                }
-
                 // Delete old api map pack directory
                 var mapPackName = SelectedMapPack?.Key;
                 var mapPackUrl = SelectedMapPack?.Value;
@@ -154,6 +147,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
 
                 if (mapPackName == "Default")
                 {
+                    mapPackName = Path.Combine(mapPackName, "menu");
                     isDefault = true;
                 }
 
@@ -206,6 +200,10 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                         _messageBoxService.ShowError("Failed to switch api.");
                     }
                 }
+                else
+                {
+                    mapPackName = "Default";
+                }
 
                 _loggingService.LogInformation($"Map pack switched to {mapPackName}.");
                 _messageBoxService.ShowInformation($"Map pack switched to {mapPackName}.");
@@ -227,24 +225,9 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             var xexPath = Path.Combine(AppService.ChromeHoundsDir, "default.xex");
             return File.Exists(xexPath);
         }
-
-        private bool HasAppGotAdminRights()
-        {
-            using var identity = WindowsIdentity.GetCurrent();
-            var principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
-        }
-
+        
         private async Task<bool> ImportChromeHoundsIso()
         {
-            if (!HasAppGotAdminRights())
-            {
-                _loggingService.LogError("The application must be run as administrator to perform the Import.");
-                _messageBoxService.ShowError("Please restart the application as administrator to perform the Import.");
-                return false;
-            }
-
-            var shouldContinue = true;
             if (IsChromeHoundsExtracted())
             {
                 _loggingService.LogError("The ISO has already been imported. Are you sure you want to override this?");
@@ -421,19 +404,19 @@ namespace CombasLauncherApp.UI.Pages.HomePage
         {
             try
             {
-                if (!HasAppGotAdminRights())
-                {
-                    _loggingService.LogError(
-                        "The application must be run as administrator to perform the installation.");
-                    _messageBoxService.ShowError(
-                        "Please restart the application as administrator to perform the installation.");
-                    return false;
-                }
-
-                // Copy folders from map_pack
-                var mapPackDir = Path.Combine(AppService.MapPacksDir, "default_map_pack");
+                // Copy folders from map_pack into Chromehounds directory
+                var mapPackDir = Path.Combine(AppService.InternalMapPackPatchDir, "default_map_pack");
                 _loggingService.LogInformation("Installing Map Pack");
                 CopyDirectory(mapPackDir, AppService.ChromeHoundsDir);
+
+
+                //Copy default map pack to MapPacks directory for reference
+                var destDir = Path.Combine(AppService.MapPacksDir, "Default");
+                Directory.CreateDirectory(destDir);
+                CopyDirectory(mapPackDir, destDir);
+
+                
+                _loggingService.LogInformation("Default map-packs installation complete.");
 
                 return true;
             }
@@ -445,38 +428,41 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             }
         }
 
+        private bool MoveXeniaFilesToLocalAppData()
+        {
+            // Check if Xenia is already in LocalAppData
+            if (_xeniaService.XeniaFound)
+            {
+                _loggingService.LogInformation("Xenia is already set up in LocalAppData.");
+                return true;
+            }
+
+            try
+            {
+                _loggingService.LogInformation("Moving Xenia files to LocalAppData...");
+                // Ensure the destination directory exists
+                Directory.CreateDirectory(AppService.XeniaDir);
+                // Recursively copy all files and subdirectories
+                CopyDirectory(AppService.InternalXeniaFilesDir, AppService.XeniaDir);
+              
+                _loggingService.LogInformation("Xenia files moved to LocalAppData successfully.");
+            }
+            catch (Exception ex)
+            {
+                _loggingService.LogError($"Failed to move Xenia files to LocalAppData: {ex.Message}");
+                _messageBoxService.ShowError("Failed to move Xenia files to LocalAppData.");
+                return false;
+            }
+
+            _xeniaService.UpdateXeniaPath();
+
+            return true;
+        }
+
         private async Task<bool> InstallTailScaleAsync()
         {
             try
             {
-                if (!HasAppGotAdminRights())
-                {
-                    _loggingService.LogError(
-                        "The application must be run as administrator to perform the installation.");
-                    _messageBoxService.ShowError(
-                        "Please restart the application as administrator to perform the installation.");
-                    return false;
-                }
-
-                // Install tailscale
-                var tailscaleMsi = Path.Combine(AppService.ToolsDir, "tailscale-setup-1.86.2-amd64.msi");
-                var tailscaleInstall = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "msiexec.exe",
-                    Arguments = $"/i \"{tailscaleMsi}\" /qn",
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                });
-
-                if (tailscaleInstall == null)
-                {
-                    _loggingService.LogError($"TailScale install failed as the process returned null");
-                    _messageBoxService.ShowError("TailScale install Failed");
-                    return false;
-                }
-
-                await tailscaleInstall.WaitForExitAsync();
-
                 // Input auth key
 
                 var authKey = PromptForAuthKey();
@@ -488,11 +474,10 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                 }
 
                 // Authenticate with server
-                var tailscaleExe = @"C:\Program Files\Tailscale\tailscale.exe";
                 var loginServer = "https://headscale.opencombas.org:443";
                 var tailscaleAuth = Process.Start(new ProcessStartInfo
                 {
-                    FileName = tailscaleExe,
+                    FileName = AppService.TailScaleExe,
                     Arguments = $"up --login-server {loginServer} --authkey {authKey}",
                     UseShellExecute = false,
                     CreateNoWindow = true
@@ -508,14 +493,12 @@ namespace CombasLauncherApp.UI.Pages.HomePage
 
                 await tailscaleAuth.WaitForExitAsync();
 
-                // Launch Xenia
+                // Launch Xenia to initialize its file paths
 
-                var xeniaExe = Path.Combine(AppService.XeniaDir, "xenia_canary_netplay.exe");
-                var xexPath = Path.Combine(AppService.ChromeHoundsDir, "default.xex");
                 var xeniaProcess = Process.Start(new ProcessStartInfo
                 {
-                    FileName = xeniaExe,
-                    Arguments = $"\"{xexPath}\"",
+                    FileName = AppService.XeniaExe,
+                    Arguments = $"\"{AppService.ChromeHoundsXex}\"",
                     WorkingDirectory = AppService.XeniaDir,
                     WindowStyle = ProcessWindowStyle.Minimized,
                     UseShellExecute = true
@@ -537,7 +520,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = "taskkill",
-                    Arguments = "/im \"xenia_canary_netplay.exe\" /f",
+                    Arguments = $"/im \"{Path.GetFileName(AppService.XeniaExe)}\" /f",
                     UseShellExecute = false,
                     CreateNoWindow = true
                 });
@@ -558,13 +541,6 @@ namespace CombasLauncherApp.UI.Pages.HomePage
         {
             try
             {
-                if (!HasAppGotAdminRights())
-                {
-                    _loggingService.LogError("The application must be run as administrator to import prebuilt hounds.");
-                    _messageBoxService.ShowError("Please restart the application as administrator to import prebuilt hounds.");
-                    return;
-                }
-
                 // Set up source and destination paths relative to the application's base directory
 
                 var destDir = Path.Combine(AppService.XeniaDir, "content", "B13EBABEBABEBABE", "534507D4", "00000001");
@@ -575,7 +551,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                 Directory.CreateDirectory(destDir);
 
                 // Recursively copy all files and subdirectories
-                CopyDirectory(AppService.HoundBuildsDir, destDir);
+                CopyDirectory(AppService.HoundPreBuildsDir, destDir);
 
                 _loggingService.LogInformation("Pre-built HOUNDs installation complete.");
                 _messageBoxService.ShowInformation("Pre-built HOUNDs installation complete.");
@@ -591,13 +567,6 @@ namespace CombasLauncherApp.UI.Pages.HomePage
         {
             try
             {
-                if (!HasAppGotAdminRights())
-                {
-                    _loggingService.LogError("The application must be run as administrator to import prebuilt hounds.");
-                    _messageBoxService.ShowError("Please restart the application as administrator to import prebuilt hounds.");
-                    return;
-                }
-
                 string? selectedDir = null;
                 using (var dialog = new FolderBrowserDialog())
                 {
@@ -613,7 +582,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                     }
                 }
 
-                var destDir = Path.Combine(AppService.XeniaDir, "content", "B13EBABEBABEBABE", "534507D4", "00000001");
+                var destDir = Path.Combine(AppService.XeniaContentDir, "B13EBABEBABEBABE", "534507D4", "00000001");
 
                 // Find all subdirectories ending with .mcd
                 var mcdFolders = Directory.GetDirectories(selectedDir, "*.mcd", SearchOption.TopDirectoryOnly);

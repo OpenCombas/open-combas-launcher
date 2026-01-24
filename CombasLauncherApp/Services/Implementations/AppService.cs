@@ -26,15 +26,30 @@ public class AppService
     
     public static readonly string BaseDir = AppDomain.CurrentDomain.BaseDirectory;
     
-    public static readonly string ChromeHoundsDir = Path.Combine(BaseDir, "ISO", "Chromehounds");
+    public static readonly string ChromeHoundsDir = Path.Combine(LocalAppData, "ISO", "Chromehounds");
 
-    public static readonly string MapPacksDir = Path.Combine(BaseDir, "map_pack");
+    public static readonly string ChromeHoundsXex = Path.Combine(ChromeHoundsDir, "default.xex");
+
+    public static readonly string InternalMapPackPatchDir = Path.Combine(BaseDir, "map_pack");
+
+    public static readonly string MapPacksDir = Path.Combine(LocalAppData, "map_pack");
 
     public static readonly string ToolsDir = Path.Combine(BaseDir, "Tools");
 
-    public static readonly string XeniaDir = Path.Combine(BaseDir, "xenia");
+    public static readonly string TailScaleExe = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Tailscale", "tailscale.exe");
 
-    public static readonly string HoundBuildsDir = Path.Combine(BaseDir, "builds");
+    public static readonly string InternalXeniaFilesDir = Path.Combine(BaseDir, "xenia");
+
+    public static readonly string XeniaDir = Path.Combine(LocalAppData, "xenia");
+
+    public static readonly string XeniaExe = Path.Combine(XeniaDir, "xenia_canary_netplay.exe");
+
+    public static readonly string XeniaContentDir = Path.Combine(XeniaDir, "content");
+
+    public static readonly string HoundPreBuildsDir = Path.Combine(BaseDir, "builds");
+
+    public static readonly string HoundBuildsDir = Path.Combine(LocalAppData, "builds");
+
 
     public string CurrentVersion => System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
 

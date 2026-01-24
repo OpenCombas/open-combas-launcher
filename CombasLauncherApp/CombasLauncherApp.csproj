@@ -29,7 +29,6 @@
   <ItemGroup>
     <None Remove="ParamDefinitions\MenuMapInfo.xml" />
     <None Remove="tools\extract-xiso.exe" />
-    <None Remove="tools\tailscale-setup-1.86.2-amd64.msi" />
     <None Remove="UI\Resources\OpenCOMBAS.ico" />
   </ItemGroup>
 
@@ -41,9 +40,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="tools\README.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="tools\tailscale-setup-1.86.2-amd64.msi">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="UI\Resources\OpenCOMBAS.ico" />
