@@ -18,7 +18,8 @@
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <OutputPath>..\Build\</OutputPath>
+    <OutputPath>..\BuildOutput\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="ISO\**" />

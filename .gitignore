@@ -74,3 +74,5 @@ Build/*
 SoulsFormats/bin/
 
 SoulsFormats/obj/
+
+BuildOutput/
