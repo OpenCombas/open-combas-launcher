@@ -86,7 +86,6 @@ public class AppService
     {
         public bool IsInstallComplete { get; set; }
         public string? CurrentMapPack { get; set; }
-        // Add more fields as needed
     }
 
     private PersistentAppData _persistentData = new();

@@ -19,9 +19,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
         private static readonly IMessageBoxService _messageBoxService = ServiceProvider.GetService<IMessageBoxService>();
 
         private static readonly IXeniaService _xeniaService = ServiceProvider.GetService<IXeniaService>();
-
-      
-
+        
         [ObservableProperty]
         private bool _isInstallComplete;
 
@@ -33,8 +31,6 @@ namespace CombasLauncherApp.UI.Pages.HomePage
 
         [ObservableProperty]
         private string _xeniaPath;
-
-       
 
         [ObservableProperty]
         private Dictionary<string, string> _mapPackList = new()
@@ -49,8 +45,6 @@ namespace CombasLauncherApp.UI.Pages.HomePage
 
         [ObservableProperty]
         private KeyValuePair<string, string>? _selectedMapPack;
-
-
 
         public HomePageViewModel()
         {
@@ -125,11 +119,55 @@ namespace CombasLauncherApp.UI.Pages.HomePage
         }
 
         [RelayCommand]
-        private async Task SwitchMapPacks()
+        private async Task SwitchMapPack()
         {
             await SwitchMapPackAsync();
         }
-        
+
+        [RelayCommand]
+        private async Task ImportSaveData()
+        {
+            await ImportGameSaveDataAsync();
+
+        }
+
+
+        private async Task ImportGameSaveDataAsync()
+        {
+            string? selectedDir = null;
+            using (var dialog = new FolderBrowserDialog())
+            {
+                dialog.Description = "Select the Xenia folder";
+                dialog.SelectedPath = selectedDir;
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    selectedDir = dialog.SelectedPath;
+                }
+                else
+                {
+                    _loggingService.LogError("No folder selected.");
+                    return;
+                }
+            }
+
+            // Check if directory is named "xenia"
+            var dirInfo = new DirectoryInfo(selectedDir);
+            if (dirInfo.Name.ToLower() != "xenia")
+            {
+                _messageBoxService.ShowError("The selected folder is not a valid Xenia folder.");
+                return;
+            }
+
+
+            if (_xeniaService.ImportGameData(selectedDir) != 0)
+            {
+                _messageBoxService.ShowError("Game Save Import Failed!");
+                return;
+            }
+
+            _messageBoxService.ShowInformation("Game Save Imported Successfully");
+
+        }
 
         private async Task SwitchMapPackAsync()
         {
@@ -617,8 +655,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                 _messageBoxService.ShowError("Failed to install custom HOUNDs.");
             }
         }
-
-
+        
         // Utility to copy directories recursively
         private void CopyDirectory(string sourceDir, string targetDir)
         {
@@ -631,8 +668,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                 File.Copy(file, file.Replace(sourceDir, targetDir), true);
             }
         }
-
-
+        
         // Method to prompt for Tailscale auth key
         private string? PromptForAuthKey()
         {

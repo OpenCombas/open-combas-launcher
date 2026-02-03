@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Windows.Documents;
 using CombasLauncherApp.Services.Interfaces;
 
 namespace CombasLauncherApp.Services.Implementations
@@ -189,5 +190,60 @@ namespace CombasLauncherApp.Services.Implementations
             }
         }
 
+        public int ImportGameData(string gameDataFolderPath)
+        {
+            if (!Directory.Exists(gameDataFolderPath))
+            {
+                return -1;
+            }
+
+            //List of folder names to copy and there contents
+            var folderNames = new List<string> { "xstorage", "content" };
+
+            foreach (var folderName in folderNames)
+            {
+                
+                var sourceFolder = Path.Combine(gameDataFolderPath, folderName);
+
+                if (!Directory.Exists(sourceFolder))
+                {
+                    return -1;
+                }
+
+                var xeniaDir = Directory.GetParent(XeniaPath)?.FullName;
+
+                if (!Directory.Exists(xeniaDir))
+                {
+                    return -1;
+                }
+
+                var destinationFolder = Path.Combine(xeniaDir, folderName);
+
+                if (!Directory.Exists(destinationFolder))
+                {
+                    //Create destination directory if it doesn't exist
+                    Directory.CreateDirectory(destinationFolder);
+                }
+
+                //Backup existing files
+                var backupFolder = destinationFolder + "_backup_" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                Directory.Move(destinationFolder, backupFolder);
+
+                // Copy all files and directories
+                foreach (var filePath in Directory.GetFiles(sourceFolder, "*", SearchOption.AllDirectories))
+                {
+                    var relativePath = filePath[(sourceFolder.Length + 1)..];
+                    var destinationFilePath = Path.Combine(destinationFolder, relativePath);
+
+                    // Ensure the destination directory exists
+                    Directory.CreateDirectory(Path.GetDirectoryName(destinationFilePath)!);
+
+                    // Copy the file
+                    File.Copy(filePath, destinationFilePath, overwrite: true);
+                }
+            }
+
+            return 0;
+        }
     }
 }

@@ -13,6 +13,8 @@
         bool UpdateApiAddress(string newAddress);
 
         void LunchXeniaProcess(string chromeHoundsDirectory);
+        
+        int ImportGameData(string gameDataFolderPath);
     }
 
 }
