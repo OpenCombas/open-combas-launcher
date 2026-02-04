@@ -12,8 +12,6 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
 
-        <Button Grid.Row="0" Content="Home" HorizontalAlignment="Right" Command="{Binding NavigateHomeCommand}"/>
-
         <TabControl Grid.Row="1">
             <TabItem Header="MapPack Exporter" >
                 <Grid>

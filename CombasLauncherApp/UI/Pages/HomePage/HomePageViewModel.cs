@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using CombasLauncherApp.Enums;
+using CombasLauncherApp.Utilities;
 using Application = System.Windows.Application;
 
 namespace CombasLauncherApp.UI.Pages.HomePage
@@ -49,7 +50,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
 
         public HomePageViewModel()
         {
-            ChromeHoundsExtracted = IsChromeHoundsExtracted();
+            ChromeHoundsExtracted = AppService.Instance.ChromeHoundsExtracted;
             XeniaPath = _xeniaService.XeniaPath;
             IsInstallComplete = AppService.Instance.IsInstallComplete;
             IsXeniaFound = _xeniaService.XeniaFound;
@@ -107,84 +108,14 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             }
         }
 
-        [RelayCommand]
-        private void ImportHoundPreBuilds()
-        {
-            ImportPrebuiltHounds();
-        }
-
-        [RelayCommand]
-        private void ImportHoundBuilds()
-        {
-            ImportCustomHounds();
-        }
+       
 
         [RelayCommand]
         private async Task SwitchMapPack()
         {
             await SwitchMapPackAsync();
         }
-
-        [RelayCommand]
-        private async Task ImportSaveData()
-        {
-            await ImportGameSaveDataAsync();
-
-        }
-
-
-        private async Task ImportGameSaveDataAsync()
-        {
-            string? selectedDir = null;
-            using (var dialog = new FolderBrowserDialog())
-            {
-                dialog.Description = "Select the Xenia folder";
-                dialog.SelectedPath = selectedDir;
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    selectedDir = dialog.SelectedPath;
-                }
-                else
-                {
-                    _loggingService.LogError("No folder selected.");
-                    return;
-                }
-            }
-
-            // Check if directory is named "xenia"
-            var dirInfo = new DirectoryInfo(selectedDir);
-            if (dirInfo.Name.ToLower() != "xenia")
-            {
-                _messageBoxService.ShowError("The selected folder is not a valid Xenia folder.");
-                return;
-            }
-
-
-            var result = _xeniaService.ImportGameData(selectedDir);
-
-            switch (result)
-            {
-                case ImportGameDataResult.ExceptionThrown:
-                    _messageBoxService.ShowError("Game Save Import Failed with an exception.");
-                    break;
-                case ImportGameDataResult.XeniaPathInvalid:
-                    _messageBoxService.ShowError("Games Save Import Failed as the Destination Xenia Path is invalid.");
-                    break;
-                case ImportGameDataResult.SourceFolderNotFound:
-                    _messageBoxService.ShowError("Game Save Import Failed as the Source Folder was not found.");
-                    break;
-                case ImportGameDataResult.GameDataFolderNotFound:
-                    _messageBoxService.ShowError("Game Save Import Failed as the Game Data folder was not found.");
-                    break;
-                case ImportGameDataResult.Success:
-                    _messageBoxService.ShowInformation("Game Save Imported Successfully");
-                    break;
-                default:
-                    _messageBoxService.ShowError("Game Save Import Failed with an unknown error.");
-                    break;
-            }
-        }
-
+        
         private async Task SwitchMapPackAsync()
         {
             try
@@ -269,20 +200,10 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             }
         }
 
-        private bool IsChromeHoundsExtracted()
-        {
-            if (!Directory.Exists(AppService.ChromeHoundsDir))
-            {
-                return false;
-            }
-
-            var xexPath = Path.Combine(AppService.ChromeHoundsDir, "default.xex");
-            return File.Exists(xexPath);
-        }
         
         private async Task<bool> ImportChromeHoundsIso()
         {
-            if (IsChromeHoundsExtracted())
+            if (AppService.Instance.ChromeHoundsExtracted)
             {
                 _loggingService.LogError("The ISO has already been imported. Are you sure you want to override this?");
                 var reImport = _messageBoxService.ShowWarning("The ISO has already been imported. Are you sure you want to override this?", MessageBoxButton.YesNo);
@@ -417,30 +338,24 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                                 // Use extracted Chromehounds folder
                                 var sourceDir = chromeHoundsDirs[0];
                                 Directory.CreateDirectory(isoDestinationDir);
-                                CopyDirectory(sourceDir, chromeHoundsDestDir);
+                                FileUtils.CopyDirectory(sourceDir, chromeHoundsDestDir);
                                 _loggingService.LogInformation($"Copied Chromehounds folder to: \"{chromeHoundsDestDir}\"");
                                 break;
                             }
                     }
 
                     //Verify extraction (back to UI thread for property update)
-                    var extracted = await Application.Current.Dispatcher.InvokeAsync(() =>
+                    var extracted = await Application.Current.Dispatcher.InvokeAsync(() => AppService.Instance.ChromeHoundsExtracted);
+
+                    if (extracted) return true;
+
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
                     {
-                        ChromeHoundsExtracted = IsChromeHoundsExtracted();
-                        return ChromeHoundsExtracted;
+                        _loggingService.LogError("The ISO was either not correct or was not extracted correctly");
+                        _messageBoxService.ShowWarning("The ISO was either not correct or was not extracted correctly, please make sure its a ChromeHounds Iso and try again.");
                     });
+                    return false;
 
-                    if (!extracted)
-                    {
-                        await Application.Current.Dispatcher.InvokeAsync(() =>
-                        {
-                            _loggingService.LogError("The ISO was either not correct or was not extracted correctly");
-                            _messageBoxService.ShowWarning("The ISO was either not correct or was not extracted correctly, please make sure its a ChromeHounds Iso and try again.");
-                        });
-                        return false;
-                    }
-
-                    return true;
                 }
                 catch (Exception ex)
                 {
@@ -461,13 +376,13 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                 // Copy folders from map_pack into Chromehounds directory
                 var mapPackDir = Path.Combine(AppService.InternalMapPackPatchDir, "default_map_pack");
                 _loggingService.LogInformation("Installing Map Pack");
-                CopyDirectory(mapPackDir, AppService.ChromeHoundsDir);
+                FileUtils.CopyDirectory(mapPackDir, AppService.ChromeHoundsDir);
 
 
                 //Copy default map pack to MapPacks directory for reference
                 var destDir = Path.Combine(AppService.MapPacksDir, "Default");
                 Directory.CreateDirectory(destDir);
-                CopyDirectory(mapPackDir, destDir);
+                FileUtils.CopyDirectory(mapPackDir, destDir);
 
                 
                 _loggingService.LogInformation("Default map-packs installation complete.");
@@ -497,7 +412,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                 // Ensure the destination directory exists
                 Directory.CreateDirectory(AppService.XeniaDir);
                 // Recursively copy all files and subdirectories
-                CopyDirectory(AppService.InternalXeniaFilesDir, AppService.XeniaDir);
+                FileUtils.CopyDirectory(AppService.InternalXeniaFilesDir, AppService.XeniaDir);
               
                 _loggingService.LogInformation("Xenia files moved to LocalAppData successfully.");
             }
@@ -589,100 +504,6 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                 return false;
             }
 
-        }
-
-        private void ImportPrebuiltHounds()
-        {
-            try
-            {
-                // Set up source and destination paths relative to the application's base directory
-
-                var destDir = Path.Combine(AppService.XeniaDir, "content", "B13EBABEBABEBABE", "534507D4", "00000001");
-
-                _loggingService.LogInformation("Installing pre-built HOUNDs...");
-
-                // Ensure the destination directory exists
-                Directory.CreateDirectory(destDir);
-
-                // Recursively copy all files and subdirectories
-                CopyDirectory(AppService.HoundPreBuildsDir, destDir);
-
-                _loggingService.LogInformation("Pre-built HOUNDs installation complete.");
-                _messageBoxService.ShowInformation("Pre-built HOUNDs installation complete.");
-            }
-            catch (Exception ex)
-            {
-                _loggingService.LogError($"Failed to install pre-built HOUNDs: {ex.Message}");
-                _messageBoxService.ShowError("Failed to install pre-built HOUNDs.");
-            }
-        }
-
-        private void ImportCustomHounds()
-        {
-            try
-            {
-                string? selectedDir = null;
-                using (var dialog = new FolderBrowserDialog())
-                {
-                    dialog.Description = "Select the folder containing your custom builds .mcd folders to import.";
-                    if (dialog.ShowDialog() == DialogResult.OK)
-                    {
-                        selectedDir = dialog.SelectedPath;
-                    }
-                    else
-                    {
-                        _loggingService.LogError("No folder selected.");
-                        return;
-                    }
-                }
-
-                var destDir = Path.Combine(AppService.XeniaContentDir, "B13EBABEBABEBABE", "534507D4", "00000001");
-
-                // Find all subdirectories ending with .mcd
-                var mcdFolders = Directory.GetDirectories(selectedDir, "*.mcd", SearchOption.TopDirectoryOnly);
-
-                if (mcdFolders.Length == 0)
-                {
-                    _loggingService.LogError("No .mcd folders found in the selected directory.");
-                    _messageBoxService.ShowError("No .mcd folders found in the selected directory.");
-                    return;
-                }
-
-                _loggingService.LogInformation("Importing custom HOUNDs (.mcd folders)...");
-
-                // Ensure the destination directory exists
-                Directory.CreateDirectory(destDir);
-
-                // Copy each .mcd folder to the destination
-                foreach (var mcdFolder in mcdFolders)
-                {
-                    var folderName = Path.GetFileName(mcdFolder);
-                    var targetFolder = Path.Combine(destDir, folderName);
-                    CopyDirectory(mcdFolder, targetFolder);
-                    _loggingService.LogInformation($"Copied {folderName} to {targetFolder}");
-                }
-
-                _loggingService.LogInformation("Custom HOUNDs (.mcd folders) installation complete.");
-                _messageBoxService.ShowInformation("Custom HOUNDs (.mcd folders) installation complete.");
-            }
-            catch (Exception ex)
-            {
-                _loggingService.LogError($"Failed to install custom HOUNDs: {ex.Message}");
-                _messageBoxService.ShowError("Failed to install custom HOUNDs.");
-            }
-        }
-        
-        // Utility to copy directories recursively
-        private void CopyDirectory(string sourceDir, string targetDir)
-        {
-            foreach (var dir in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
-            {
-                Directory.CreateDirectory(dir.Replace(sourceDir, targetDir));
-            }
-            foreach (var file in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
-            {
-                File.Copy(file, file.Replace(sourceDir, targetDir), true);
-            }
         }
         
         // Method to prompt for Tailscale auth key

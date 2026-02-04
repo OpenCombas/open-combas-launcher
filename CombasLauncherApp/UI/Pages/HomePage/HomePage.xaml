@@ -35,37 +35,10 @@
 
         </StackPanel>
 
-        <StackPanel Grid.Column="0" Grid.Row="1" Width="200" HorizontalAlignment="Left" Margin="4">
-            <Button Content="Import Hound Pre-Builds" Command="{Binding ImportHoundPreBuildsCommand}">
-                <Button.IsEnabled>
-                    <MultiBinding Converter="{StaticResource BooleanAndConverter}">
-                        <Binding Path="ChromeHoundsExtracted"/>
-                        <Binding Path="IsInstallComplete"/>
-                        <Binding Path="IsXeniaFound"/>
-                    </MultiBinding>
-                </Button.IsEnabled>
-            </Button>
-            <Button Content="Import Hound Builds" Command="{Binding ImportHoundBuildsCommand}">
-                <Button.IsEnabled>
-                    <MultiBinding Converter="{StaticResource BooleanAndConverter}">
-                        <Binding Path="ChromeHoundsExtracted"/>
-                        <Binding Path="IsInstallComplete"/>
-                        <Binding Path="IsXeniaFound"/>
-                    </MultiBinding>
-                </Button.IsEnabled>
-            </Button>
-        </StackPanel>
+       
 
         <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal">
-            <Button Content="Import Save File" FontSize="20" Command="{Binding ImportSaveDataCommand}" Padding="8,0" Margin="4">
-                <Button.IsEnabled>
-                    <MultiBinding Converter="{StaticResource BooleanAndConverter}">
-                        <Binding Path="ChromeHoundsExtracted"/>
-                        <Binding Path="IsInstallComplete"/>
-                        <Binding Path="IsXeniaFound"/>
-                    </MultiBinding>
-                </Button.IsEnabled>
-            </Button>
+           
             <ComboBox ItemsSource="{Binding MapPackList}" 
                       SelectedItem="{Binding SelectedMapPack, Mode=TwoWay}"
                       DisplayMemberPath="Key" VerticalContentAlignment="Center" FontSize="20" Margin="4">

@@ -8,6 +8,9 @@
     <Compile Update="UI\Pages\HomePage\HomePage.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="UI\Pages\SettingsPage\SettingsPage.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="UI\Windows\AuthEntry\AuthKeyWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

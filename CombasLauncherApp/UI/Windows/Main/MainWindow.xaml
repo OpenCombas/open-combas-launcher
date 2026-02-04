@@ -6,35 +6,65 @@
         xmlns:local="clr-namespace:CombasLauncherApp" xmlns:ui="clr-namespace:CombasLauncherApp.UI"
         xmlns:homePage="clr-namespace:CombasLauncherApp.UI.Pages.HomePage"
         xmlns:developerPages="clr-namespace:CombasLauncherApp.UI.Pages.DeveloperPages"
+        xmlns:settingsPage="clr-namespace:CombasLauncherApp.UI.Pages.SettingsPage"
         mc:Ignorable="d"
         Title="{Binding Version}" Height="450" Width="800" Background="{StaticResource MainBackground}" d:DataContext="{d:DesignInstance ui:MainWindowViewModel}">
+    
+    <!-- Window Resources, primarily navigation templates for the content presenter -->
     <Window.Resources>
         <DataTemplate DataType="{x:Type homePage:HomePageViewModel}">
             <homePage:HomePage />
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type developerPages:DeveloperHomePageViewModel}">
-            <developerPages:DeveloperHomePage />
         </DataTemplate>
     </Window.Resources>
     
     
     <Grid  Margin="5">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition />
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ContentPresenter Grid.Row="0" Content="{Binding CurrentPage}"/> 
-        <Grid Grid.Row="1">
+
+        <!-- Header Bar -->
+        <Grid Grid.Row="0" HorizontalAlignment="Right">
             <StackPanel Orientation="Horizontal">
-                <Button Content="Developer Menu" Padding="4" Command="{Binding OpenDeveloperMenuCommand}"/>
+                <Button Content="Developer Menu" Padding="4" Command="{Binding OpenDeveloperMenuCommand}" Margin="4,0"/>
+                <Button Content="Settings" Padding="4" Command="{Binding OpenSettingsPageCommand}" IsEnabled="{Binding IsInstallComplete}"/>
             </StackPanel>
         </Grid>
 
+        <!-- Main Navigation Content -->
+        <ContentPresenter Grid.Row="1" Content="{Binding CurrentPage}"/> 
+
+        <!-- Footer Bar -->
+        <Grid Grid.Row="2">
+            <StackPanel Orientation="Horizontal">
+             
+            </StackPanel>
+        </Grid>
+
+
+        <!-- Settings Overlay -->
+        <Grid Grid.Row="1" x:Name="SettingsOverlay"
+              Background="{StaticResource MainBackground}"
+              Visibility="{Binding IsSettingsOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
+              Panel.ZIndex="200">
+            <settingsPage:SettingsPage DataContext="{Binding SettingsPageViewModel}" />
+        </Grid>
+
+        <!-- Developer Menu Overlay -->
+
+        <Grid Grid.Row="1" x:Name="DeveloperMenuOverlay" Background="{StaticResource MainBackground}"
+              Visibility="{Binding IsDeveloperMenuOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
+              Panel.ZIndex="200">
+            <developerPages:DeveloperHomePage DataContext="{Binding DeveloperHomePageViewModel}"/>
+        </Grid>
+
         <!-- Pulsing Loading Overlay -->
-        <Grid x:Name="LoadingOverlay"
+        <Grid Grid.Row="0" Grid.RowSpan="3" x:Name="LoadingOverlay"
               Background="#80000000"
               Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
-              Panel.ZIndex="100">
+              Panel.ZIndex="1000">
             <TextBlock Text="Loading..."
                        Foreground="White"
                        FontSize="36"

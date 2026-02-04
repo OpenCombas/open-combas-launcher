@@ -53,11 +53,33 @@ public class AppService
 
     public string CurrentVersion => System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
 
-    public string? CurrentMapPack;
+    public string? CurrentMapPack; 
+    
+    public bool ChromeHoundsExtracted => IsChromeHoundsExtracted();
 
-    public bool IsInstallComplete;
+    private bool _isInstallComplete;
 
+    public bool IsInstallComplete
+    {
+        get=>_isInstallComplete;
+        set
+        {
+            if (_isInstallComplete != value)
+            {
+                _isInstallComplete = value;
+                OnIsInstallCompleteChanged?.Invoke(this, new IsInstallCompleteChangedEventArgs(_isInstallComplete));
+            }
+        }
+    }
+    
+    // Event and event args for IsInstallComplete changes
+    public event EventHandler<IsInstallCompleteChangedEventArgs>? OnIsInstallCompleteChanged;
 
+    public class IsInstallCompleteChangedEventArgs(bool isInstallComplete) : EventArgs
+    {
+        public bool IsInstallComplete { get; } = isInstallComplete;
+    }
+    
     private bool _isLoading;
 
     public bool IsLoading
@@ -80,6 +102,9 @@ public class AppService
     {
         public bool IsLoading { get; } = isLoading;
     }
+
+   
+
 
     // Data model for persistent data
     private class PersistentAppData
@@ -137,5 +162,17 @@ public class AppService
             _loggingService.LogError($"Failed to save persistent app data. {ex.Message}");
             _messageBoxService.ShowError("An error occurred while saving application data. Changes may not be preserved.");
         }
+    }
+    
+
+    private bool IsChromeHoundsExtracted()
+    {
+        if (!Directory.Exists(ChromeHoundsDir))
+        {
+            return false;
+        }
+
+        var xexPath = Path.Combine(ChromeHoundsDir, "default.xex");
+        return File.Exists(xexPath);
     }
 }

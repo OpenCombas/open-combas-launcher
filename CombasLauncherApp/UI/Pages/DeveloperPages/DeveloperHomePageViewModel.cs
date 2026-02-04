@@ -12,7 +12,6 @@ namespace CombasLauncherApp.UI.Pages.DeveloperPages
     public partial class DeveloperHomePageViewModel : ObservableObject
     {
 
-        private readonly INavigationService _navigationService = ServiceProvider.GetService<INavigationService>();
         private readonly IMessageBoxService _messageBoxService = ServiceProvider.GetService<IMessageBoxService>();
 
         private const int MaxEnabledMaps = 31;
@@ -144,11 +143,7 @@ namespace CombasLauncherApp.UI.Pages.DeveloperPages
             }
         }
 
-        [RelayCommand]
-        private void NavigateHome()
-        {
-            _navigationService.NavigateHome();
-        }
+      
 
 
 
