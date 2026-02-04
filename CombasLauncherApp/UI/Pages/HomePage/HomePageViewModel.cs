@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using CombasLauncherApp.Enums;
 using Application = System.Windows.Application;
 
 namespace CombasLauncherApp.UI.Pages.HomePage
@@ -159,14 +160,29 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             }
 
 
-            if (_xeniaService.ImportGameData(selectedDir) != 0)
+            var result = _xeniaService.ImportGameData(selectedDir);
+
+            switch (result)
             {
-                _messageBoxService.ShowError("Game Save Import Failed!");
-                return;
+                case ImportGameDataResult.ExceptionThrown:
+                    _messageBoxService.ShowError("Game Save Import Failed with an exception.");
+                    break;
+                case ImportGameDataResult.XeniaPathInvalid:
+                    _messageBoxService.ShowError("Games Save Import Failed as the Destination Xenia Path is invalid.");
+                    break;
+                case ImportGameDataResult.SourceFolderNotFound:
+                    _messageBoxService.ShowError("Game Save Import Failed as the Source Folder was not found.");
+                    break;
+                case ImportGameDataResult.GameDataFolderNotFound:
+                    _messageBoxService.ShowError("Game Save Import Failed as the Game Data folder was not found.");
+                    break;
+                case ImportGameDataResult.Success:
+                    _messageBoxService.ShowInformation("Game Save Imported Successfully");
+                    break;
+                default:
+                    _messageBoxService.ShowError("Game Save Import Failed with an unknown error.");
+                    break;
             }
-
-            _messageBoxService.ShowInformation("Game Save Imported Successfully");
-
         }
 
         private async Task SwitchMapPackAsync()

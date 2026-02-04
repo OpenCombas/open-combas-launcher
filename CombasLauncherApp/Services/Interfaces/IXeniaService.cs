@@ -1,4 +1,7 @@
-﻿namespace CombasLauncherApp.Services.Interfaces
+﻿using CombasLauncherApp.Enums;
+using static CombasLauncherApp.Services.Implementations.XeniaService;
+
+namespace CombasLauncherApp.Services.Interfaces
 {
     public interface IXeniaService
     {
@@ -13,8 +16,8 @@
         bool UpdateApiAddress(string newAddress);
 
         void LunchXeniaProcess(string chromeHoundsDirectory);
-        
-        int ImportGameData(string gameDataFolderPath);
+
+        ImportGameDataResult ImportGameData(string gameDataFolderPath);
     }
 
 }
