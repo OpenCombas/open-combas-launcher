@@ -11,6 +11,7 @@
             <Button Content="Import Save File" Command="{Binding ImportSaveDataCommand}" Padding="8,0" Margin="4"/>
             <Button Content="Import Hound Pre-Builds" Command="{Binding ImportHoundPreBuildsCommand}" Padding="8,0" Margin="4"/>
             <Button Content="Import Hound Builds" Command="{Binding ImportHoundBuildsCommand}" Padding="8,0" Margin="4"/>
+            <Button Content="Show Logs" Command="{Binding ShowLogsCommand}" Padding="8,0" Margin="4"/>
         </StackPanel>
     </Grid>
 </UserControl>

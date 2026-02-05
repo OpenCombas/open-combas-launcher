@@ -1,6 +1,5 @@
 using CombasLauncherApp.Models;
 using SoulsFormats;
-using SoulsFormats.Other.KF4;
 using System.IO;
 
 namespace CombasLauncherApp.Services.Implementations

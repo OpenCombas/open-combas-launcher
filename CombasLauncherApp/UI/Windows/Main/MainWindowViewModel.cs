@@ -11,16 +11,31 @@ namespace CombasLauncherApp.UI
 {
     public partial class MainWindowViewModel: ObservableObject
     {
+        private readonly IXeniaService _xeniaService = ServiceProvider.GetService<IXeniaService>();
+
         public string Version => AppService.Instance.CurrentVersion;
 
         [ObservableProperty]
         private bool _isInstallComplete = AppService.Instance.IsInstallComplete;
 
+
+        [ObservableProperty]
+        private bool _chromeHoundsExtracted;
+
+        [ObservableProperty]
+        private bool _isXeniaFound;
+
+        [ObservableProperty]
+        private string? _xeniaPath;
+        
         [ObservableProperty]
         private bool _isLoading;
 
         [ObservableProperty]
         private bool _isSettingsOpen;
+
+        [ObservableProperty]
+        private bool _isStatusOpen;
 
         [ObservableProperty]
         private bool _isDeveloperMenuOpen;
@@ -62,6 +77,7 @@ namespace CombasLauncherApp.UI
         private void OpenDeveloperMenu()
         {
             IsSettingsOpen = false;
+            IsStatusOpen = false;
             IsDeveloperMenuOpen = !IsDeveloperMenuOpen;
         }
 
@@ -69,7 +85,25 @@ namespace CombasLauncherApp.UI
         private void OpenSettingsPage()
         {
             IsDeveloperMenuOpen = false;
+            IsStatusOpen = false;
             IsSettingsOpen = !IsSettingsOpen;
+        }
+
+        [RelayCommand]
+        private void OpenStatusPage()
+        {
+            IsDeveloperMenuOpen = false;
+            IsSettingsOpen = false;
+
+            if (!IsStatusOpen)
+            {
+                XeniaPath = _xeniaService.XeniaPath;
+                IsXeniaFound = _xeniaService.XeniaFound;
+                ChromeHoundsExtracted = AppService.Instance.ChromeHoundsExtracted;
+            }
+
+
+            IsStatusOpen = !IsStatusOpen;
         }
     }
 

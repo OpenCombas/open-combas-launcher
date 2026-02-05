@@ -28,6 +28,7 @@
         <!-- Header Bar -->
         <Grid Grid.Row="0" HorizontalAlignment="Right">
             <StackPanel Orientation="Horizontal">
+                <Button Content="Status" Padding="4" Command="{Binding OpenStatusPageCommand}" Margin="4,0"/>
                 <Button Content="Developer Menu" Padding="4" Command="{Binding OpenDeveloperMenuCommand}" Margin="4,0"/>
                 <Button Content="Settings" Padding="4" Command="{Binding OpenSettingsPageCommand}" IsEnabled="{Binding IsInstallComplete}"/>
             </StackPanel>
@@ -52,8 +53,28 @@
             <settingsPage:SettingsPage DataContext="{Binding SettingsPageViewModel}" />
         </Grid>
 
-        <!-- Developer Menu Overlay -->
+        <!-- Status Overlay -->
+        <Grid Grid.Row="1" x:Name="StatusOverlay" VerticalAlignment="Top"
+              Background="{StaticResource MainBackground}"
+              Visibility="{Binding IsStatusOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
+              Panel.ZIndex="200">
+            <StackPanel Grid.ColumnSpan="2" Margin="4">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="ISO Extracted / Found : " Foreground="{StaticResource MainForeground}"/>
+                    <CheckBox IsEnabled="False" IsChecked="{Binding ChromeHoundsExtracted}" Foreground="{StaticResource MainForeground}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Install Complete : " Foreground="{StaticResource MainForeground}"/>
+                    <CheckBox IsEnabled="False" IsChecked="{Binding IsInstallComplete}" Foreground="{StaticResource MainForeground}"/>
+                </StackPanel>
 
+                <TextBlock Text="{Binding XeniaPath, StringFormat=Xenia Path : {0}}" Foreground="{StaticResource MainForeground}"/>
+
+            </StackPanel>
+        </Grid>
+
+
+        <!-- Developer Menu Overlay -->
         <Grid Grid.Row="1" x:Name="DeveloperMenuOverlay" Background="{StaticResource MainBackground}"
               Visibility="{Binding IsDeveloperMenuOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
               Panel.ZIndex="200">

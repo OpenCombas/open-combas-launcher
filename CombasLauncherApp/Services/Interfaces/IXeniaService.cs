@@ -1,5 +1,4 @@
 ﻿using CombasLauncherApp.Enums;
-using static CombasLauncherApp.Services.Implementations.XeniaService;
 
 namespace CombasLauncherApp.Services.Interfaces
 {

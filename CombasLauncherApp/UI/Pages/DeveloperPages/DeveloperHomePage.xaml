@@ -13,6 +13,18 @@
         </Grid.RowDefinitions>
 
         <TabControl Grid.Row="1">
+            <TabItem Header="Console Output">
+                <TextBox Margin="8"
+                     VerticalScrollBarVisibility="Auto"
+                     HorizontalScrollBarVisibility="Auto"
+                     FontFamily="Consolas"
+                     FontSize="14"
+                     Background="Black"
+                     Foreground="Lime"
+                     IsReadOnly="True"
+                     Text="{Binding MapConsoleOutput, Mode=OneWay}"
+                     TextWrapping="NoWrap"/>
+            </TabItem>
             <TabItem Header="MapPack Exporter" >
                 <Grid>
                     <Grid.RowDefinitions>
@@ -52,18 +64,7 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="Console Output">
-            <TextBox Margin="8"
-                     VerticalScrollBarVisibility="Auto"
-                     HorizontalScrollBarVisibility="Auto"
-                     FontFamily="Consolas"
-                     FontSize="14"
-                     Background="Black"
-                     Foreground="Lime"
-                     IsReadOnly="True"
-                     Text="{Binding MapConsoleOutput, Mode=OneWay}"
-                     TextWrapping="NoWrap"/>
-            </TabItem>
+           
          
         </TabControl>
      

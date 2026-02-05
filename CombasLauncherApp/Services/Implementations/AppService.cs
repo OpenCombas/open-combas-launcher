@@ -1,7 +1,6 @@
 ﻿using CombasLauncherApp.Services.Interfaces;
 using System.IO;
 using System.Text.Json;
-using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace CombasLauncherApp.Services.Implementations;
 
@@ -10,7 +9,6 @@ namespace CombasLauncherApp.Services.Implementations;
 public class AppService
 {
     private readonly ILoggingService _loggingService = ServiceProvider.GetService<ILoggingService>();
-    private readonly IMessageBoxService _messageBoxService = ServiceProvider.GetService<IMessageBoxService>();
 
     // Singleton implementation
     private static readonly Lazy<AppService> _instance = new(() => new AppService());
@@ -115,7 +113,7 @@ public class AppService
 
     private PersistentAppData _persistentData = new();
 
-    public void LoadPersistentAppData()
+    public int LoadPersistentAppData()
     {
         try
         {
@@ -123,7 +121,10 @@ public class AppService
             {
                 Directory.CreateDirectory(LocalAppData);
                 _persistentData = new PersistentAppData();
-                SavePersistentAppData();
+                if (SavePersistentAppData() != 0)
+                {
+                    return 1;
+                }
             }
             else if (File.Exists(PersistentDataFile))
             {
@@ -135,32 +136,36 @@ public class AppService
             else
             {
                 _persistentData = new PersistentAppData();
-                SavePersistentAppData();
+                if (SavePersistentAppData() != 0)
+                {
+                    return 1;
+                }
             }
+
+            return 0;
         }
         catch (Exception ex)
         {
             _loggingService.LogError($"Failed to load or create persistent app data directory. {ex.Message}");
-            _messageBoxService.ShowError("An error occurred while setting up application data. The application may not function correctly.");
+            return 1;
         }
 
     }
 
-    public void SavePersistentAppData()
+    public int SavePersistentAppData()
     {
-
         try
         {
             _persistentData.IsInstallComplete = IsInstallComplete;
             _persistentData.CurrentMapPack = CurrentMapPack;
             var json = JsonSerializer.Serialize(_persistentData, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(PersistentDataFile, json);
-
+            return 0;
         }
         catch (Exception ex)
         {
             _loggingService.LogError($"Failed to save persistent app data. {ex.Message}");
-            _messageBoxService.ShowError("An error occurred while saving application data. Changes may not be preserved.");
+            return 1;
         }
     }
     

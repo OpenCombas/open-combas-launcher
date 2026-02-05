@@ -4,10 +4,7 @@ using CombasLauncherApp.Services.Implementations;
 using CombasLauncherApp.Services.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using CombasLauncherApp.Utilities;
 
 namespace CombasLauncherApp.UI.Pages.SettingsPage
@@ -37,6 +34,12 @@ namespace CombasLauncherApp.UI.Pages.SettingsPage
         private void ImportHoundBuilds()
         {
             ImportCustomHounds();
+        }
+
+        [RelayCommand]
+        private void ShowLogs()
+        {
+            _loggingService.ShowLogs();
         }
 
         private void ImportGameSaveDataAsync()

@@ -142,14 +142,7 @@ namespace CombasLauncherApp.UI.Pages.DeveloperPages
                 }
             }
         }
-
-      
-
-
-
-
-
-
+        
         public void TryToggleMapEnabled(MapEntry map)
         {
             if (map.Enabled)

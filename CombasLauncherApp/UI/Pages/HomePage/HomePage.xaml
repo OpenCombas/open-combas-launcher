@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CombasLauncherApp.UI.Pages.HomePage"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:HomePageViewModel}">
     <!-- Main Content -->
     <Grid>
         <Grid.RowDefinitions>
@@ -19,23 +19,7 @@
             <ColumnDefinition/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-
-        <StackPanel Grid.ColumnSpan="2" Margin="4">
-            <TextBlock Text="Status" TextDecorations="Underline" FontWeight="Bold" FontSize="18" Foreground="{StaticResource MainForeground}"/>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="ISO Extracted / Found : " Foreground="{StaticResource MainForeground}"/>
-                <CheckBox IsEnabled="False" IsChecked="{Binding ChromeHoundsExtracted}" Foreground="{StaticResource MainForeground}"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Install Complete : " Foreground="{StaticResource MainForeground}"/>
-                <CheckBox IsEnabled="False" IsChecked="{Binding IsInstallComplete}" Foreground="{StaticResource MainForeground}"/>
-            </StackPanel>
-
-            <TextBlock Text="{Binding XeniaPath, StringFormat=Xenia Path : {0}}" Foreground="{StaticResource MainForeground}"/>
-
-        </StackPanel>
-
-       
+      
 
         <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal">
            
@@ -68,7 +52,7 @@
                     </MultiBinding>
                 </Button.Visibility>
             </Button>
-            <Button Width="120" Height="60" FontSize="20" Content="Run Setup" Command="{Binding RunSetupCommand}" Padding="8,0"  Margin="4">
+            <Button Width="120" Height="60" FontSize="20" Content="Run Setup" Command="{Binding RunInitialSetupCommand}" Padding="8,0"  Margin="4">
                 <Button.Visibility>
                     <MultiBinding Converter="{StaticResource BooleanNandVisibilityConverter}">
                         <Binding Path="ChromeHoundsExtracted"/>

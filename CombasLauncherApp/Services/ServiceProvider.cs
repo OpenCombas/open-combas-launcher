@@ -18,6 +18,7 @@ public static class ServiceProvider
         services.AddSingleton<IMessageBoxService, MessageBoxService>();
         services.AddSingleton<ILoggingService>(_ => new LoggingService(Path.Combine(AppService.LocalAppData, "Logs")));
         services.AddSingleton<IXeniaService, XeniaService>();
+        services.AddSingleton<ITailScaleService, TailScaleService>();
         services.AddSingleton<INavigationService, NavigationService>();
         //services.AddSingleton<IUpdateService, UpdateService>();
 

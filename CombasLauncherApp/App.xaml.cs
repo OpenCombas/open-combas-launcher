@@ -12,6 +12,7 @@ namespace CombasLauncherApp
     /// </summary>
     public partial class App
     {
+
         protected override void OnStartup(StartupEventArgs e)
         {
             // Force culture to US English
@@ -26,8 +27,16 @@ namespace CombasLauncherApp
             //Configure services
             ServiceProvider.ConfigureServices();
 
+            var loggingService = ServiceProvider.GetService<ILoggingService>();
+            loggingService.LogInformation("------------Application starting------------");
+
             //Load Persistent App Data
-            AppService.Instance.LoadPersistentAppData();
+            if (AppService.Instance.LoadPersistentAppData() != 0)
+            {
+                var messageBoxService = ServiceProvider.GetService<IMessageBoxService>();
+                messageBoxService.ShowError("An error occurred while setting up application data. The application may not function correctly.");
+
+            }
 
             //Load Application Resources
             var xeniaService = ServiceProvider.GetService<IXeniaService>();
@@ -44,8 +53,15 @@ namespace CombasLauncherApp
         protected override void OnExit(ExitEventArgs e)
         {
             // Save Persistent App Data
-            AppService.Instance.SavePersistentAppData();
+            if (AppService.Instance.SavePersistentAppData() != 0)
+            {
+                var messageBoxService = ServiceProvider.GetService<IMessageBoxService>();
+                messageBoxService.ShowError("An error occurred while saving application data. Changes may not be preserved.");
 
+            }
+
+            var loggingService = ServiceProvider.GetService<ILoggingService>();
+            loggingService.LogInformation("------------Application exiting------------");
             base.OnExit(e);
         }
     }

@@ -21,7 +21,9 @@ namespace CombasLauncherApp.UI.Pages.HomePage
         private static readonly IMessageBoxService _messageBoxService = ServiceProvider.GetService<IMessageBoxService>();
 
         private static readonly IXeniaService _xeniaService = ServiceProvider.GetService<IXeniaService>();
-        
+
+        private static readonly ITailScaleService _tailScaleService = ServiceProvider.GetService<ITailScaleService>();
+
         [ObservableProperty]
         private bool _isInstallComplete;
 
@@ -31,13 +33,10 @@ namespace CombasLauncherApp.UI.Pages.HomePage
         [ObservableProperty]
         private bool _isXeniaFound;
 
-        [ObservableProperty]
-        private string _xeniaPath;
 
-        [ObservableProperty]
-        private Dictionary<string, string> _mapPackList = new()
+        [ObservableProperty] private Dictionary<string, string> _mapPackList = new()
         {
-            { "Default", "n/a"},
+            { "Default", "n/a" },
             { "API 1", "api1.opencombas.org" },
             { "API 2", "api2.opencombas.org" },
             { "API 3", "api3.opencombas.org" },
@@ -45,13 +44,11 @@ namespace CombasLauncherApp.UI.Pages.HomePage
         };
 
 
-        [ObservableProperty]
-        private KeyValuePair<string, string>? _selectedMapPack;
+        [ObservableProperty] private KeyValuePair<string, string>? _selectedMapPack;
 
         public HomePageViewModel()
         {
             ChromeHoundsExtracted = AppService.Instance.ChromeHoundsExtracted;
-            XeniaPath = _xeniaService.XeniaPath;
             IsInstallComplete = AppService.Instance.IsInstallComplete;
             IsXeniaFound = _xeniaService.XeniaFound;
 
@@ -69,11 +66,18 @@ namespace CombasLauncherApp.UI.Pages.HomePage
         [RelayCommand]
         private void LaunchXenia()
         {
+            if (!_tailScaleService.IsTailScaleRunning())
+            {
+                _messageBoxService.ShowWarning("No TailScale instance is currently running. Please start TailScale and try again.");
+                return;
+            }
+
+
             _xeniaService.LunchXeniaProcess(AppService.ChromeHoundsDir);
         }
 
         [RelayCommand]
-        private async Task RunSetup()
+        private async Task RunInitialSetup()
         {
             try
             {
@@ -94,9 +98,48 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                     return;
                 }
 
-                if (!await InstallTailScaleAsync())
+                if (_tailScaleService.IsTailScaleRunning())
                 {
-                    return;
+                    _messageBoxService.ShowWarning("We have detected you are already using Tailscale, please use this .....[TODO ADD INSTRUCTION] "); //TODO: Add instructions for users who already have TailScale running, as we can skip the auth key step and the TailScale service.
+                }
+                else
+                {
+
+                    // Input auth key
+                    var authKey = PromptForTailScaleAuthenticationKey();
+                    if (string.IsNullOrWhiteSpace(authKey))
+                    {
+                        _loggingService.LogError("No auth key entered.");
+                        _messageBoxService.ShowError("You must enter a Tailscale auth key to continue.");
+                        return;
+                    }
+
+                    var tailScaleResult = await _tailScaleService.InstallTailScaleAsync(authKey);
+
+                    switch (tailScaleResult)
+                    {
+                        case TailScaleInstallResult.Success:
+                            break;
+
+                        case TailScaleInstallResult.AuthenticationFailed:
+                            _messageBoxService.ShowError("TailScale authenticate could not be run.");
+                            return;
+
+                        case TailScaleInstallResult.XeniaStartupFailed:
+                            _messageBoxService.ShowError(
+                                "TailScale installation failed as Xenia did not start correctly. Please make sure Xenia is able to launch and try again.");
+                            return;
+
+                        case TailScaleInstallResult.ExceptionThrown:
+                            _messageBoxService.ShowError(
+                                "TailScale installation failed with an exception. Please check the logs for more details.");
+                            return;
+
+                        default:
+                            _messageBoxService.ShowError(
+                                "TailScale installation failed with an unknown result. Please check the logs for more details.");
+                            return;
+                    }
                 }
 
                 IsInstallComplete = true;
@@ -108,14 +151,12 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             }
         }
 
-       
-
         [RelayCommand]
         private async Task SwitchMapPack()
         {
             await SwitchMapPackAsync();
         }
-        
+
         private async Task SwitchMapPackAsync()
         {
             try
@@ -143,6 +184,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                 {
                     Directory.Delete(apiMapPackDir, true);
                 }
+
                 Directory.CreateDirectory(apiMapPackDir);
 
                 // Download and copy files
@@ -200,13 +242,14 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             }
         }
 
-        
         private async Task<bool> ImportChromeHoundsIso()
         {
             if (AppService.Instance.ChromeHoundsExtracted)
             {
                 _loggingService.LogError("The ISO has already been imported. Are you sure you want to override this?");
-                var reImport = _messageBoxService.ShowWarning("The ISO has already been imported. Are you sure you want to override this?", MessageBoxButton.YesNo);
+                var reImport = _messageBoxService.ShowWarning(
+                    "The ISO has already been imported. Are you sure you want to override this?",
+                    MessageBoxButton.YesNo);
                 if (reImport != MessageBoxResult.Yes)
                 {
                     _loggingService.LogError("Aborted");
@@ -217,7 +260,8 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             string? selectedDir = null;
             using (var dialog = new FolderBrowserDialog())
             {
-                dialog.Description = "Select the folder containing your Chromehounds ISO or extracted Chromehounds directory";
+                dialog.Description =
+                    "Select the folder containing your Chromehounds ISO or extracted Chromehounds directory";
                 dialog.SelectedPath = selectedDir;
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
@@ -235,14 +279,17 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                 try
                 {
                     var isoFiles = Directory.GetFiles(selectedDir, "*.iso", SearchOption.AllDirectories);
-                    var chromeHoundsDirs = Directory.GetDirectories(selectedDir, "Chromehounds", SearchOption.AllDirectories);
+                    var chromeHoundsDirs =
+                        Directory.GetDirectories(selectedDir, "Chromehounds", SearchOption.AllDirectories);
 
                     int choice;
                     if (isoFiles.Length > 0 && chromeHoundsDirs.Length > 0)
                     {
                         // UI thread needed for message box
                         var result = await Application.Current.Dispatcher.InvokeAsync(() =>
-                            _messageBoxService.Show("Both a Chromehounds folder and an ISO file were found. Use ISO file?", "Choose Source", MessageBoxButton.YesNoCancel, MessageBoxImage.Question));
+                            _messageBoxService.Show(
+                                "Both a Chromehounds folder and an ISO file were found. Use ISO file?", "Choose Source",
+                                MessageBoxButton.YesNoCancel, MessageBoxImage.Question));
                         switch (result)
                         {
                             case MessageBoxResult.Yes:
@@ -268,7 +315,8 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                         await Application.Current.Dispatcher.InvokeAsync(() =>
                         {
                             _loggingService.LogError("No Chromehounds ISO or extracted folder found.");
-                            _messageBoxService.ShowError("No Chromehounds ISO or extracted folder found in the selected directory.");
+                            _messageBoxService.ShowError(
+                                "No Chromehounds ISO or extracted folder found in the selected directory.");
                         });
                         return false;
                     }
@@ -285,74 +333,80 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                     switch (choice)
                     {
                         case 0:
-                            {
-                                // Use ISO
-                                Directory.CreateDirectory(isoDestinationDir);
-                                var isoFile = isoFiles[0];
-                                var destIsoPath = Path.Combine(isoDestinationDir, Path.GetFileName(isoFile));
-                                File.Copy(isoFile, destIsoPath, true);
-                                _loggingService.LogInformation($"Copied ISO to: \"{destIsoPath}\"");
+                        {
+                            // Use ISO
+                            Directory.CreateDirectory(isoDestinationDir);
+                            var isoFile = isoFiles[0];
+                            var destIsoPath = Path.Combine(isoDestinationDir, Path.GetFileName(isoFile));
+                            File.Copy(isoFile, destIsoPath, true);
+                            _loggingService.LogInformation($"Copied ISO to: \"{destIsoPath}\"");
 
-                                // Extract ISO
-                                _loggingService.LogInformation($"Extracting ISO: \"{destIsoPath}\"");
-                                var extractProcess = Process.Start(new ProcessStartInfo
+                            // Extract ISO
+                            _loggingService.LogInformation($"Extracting ISO: \"{destIsoPath}\"");
+                            var extractProcess = Process.Start(new ProcessStartInfo
+                            {
+                                FileName = Path.Combine(AppService.ToolsDir, "extract-xiso.exe"),
+                                Arguments = $"\"{destIsoPath}\"",
+                                UseShellExecute = false,
+                                CreateNoWindow = true,
+                                WorkingDirectory = AppService.BaseDir
+                            });
+                            if (extractProcess == null)
+                            {
+                                await Application.Current.Dispatcher.InvokeAsync(() =>
                                 {
-                                    FileName = Path.Combine(AppService.ToolsDir, "extract-xiso.exe"),
-                                    Arguments = $"\"{destIsoPath}\"",
-                                    UseShellExecute = false,
-                                    CreateNoWindow = true,
-                                    WorkingDirectory = AppService.BaseDir
+                                    _loggingService.LogError(
+                                        "Extraction of the ISO could not be run as the process returned null");
+                                    _messageBoxService.ShowError("Extraction of the ISO Failed");
                                 });
-                                if (extractProcess == null)
-                                {
-                                    await Application.Current.Dispatcher.InvokeAsync(() =>
-                                    {
-                                        _loggingService.LogError("Extraction of the ISO could not be run as the process returned null");
-                                        _messageBoxService.ShowError("Extraction of the ISO Failed");
-                                    });
-                                    return false;
-                                }
-                                await extractProcess.WaitForExitAsync();
-
-                                // Move extracted folder to Chromehounds
-                                var isoName = Path.GetFileNameWithoutExtension(destIsoPath);
-                                var extractedDir = Path.Combine(AppService.BaseDir, isoName);
-                                if (Directory.Exists(extractedDir))
-                                {
-                                    Directory.Move(extractedDir, chromeHoundsDestDir);
-                                }
-                                else
-                                {
-                                    await Application.Current.Dispatcher.InvokeAsync(() =>
-                                    {
-                                        _loggingService.LogError($"Extraction failed or folder not found: \"{isoName}\"");
-                                        _messageBoxService.ShowError($"Extraction failed or folder not found: \"{isoName}\"");
-                                    });
-                                    return false;
-                                }
-
-                                break;
+                                return false;
                             }
-                        case 1:
+
+                            await extractProcess.WaitForExitAsync();
+
+                            // Move extracted folder to Chromehounds
+                            var isoName = Path.GetFileNameWithoutExtension(destIsoPath);
+                            var extractedDir = Path.Combine(AppService.BaseDir, isoName);
+                            if (Directory.Exists(extractedDir))
                             {
-                                // Use extracted Chromehounds folder
-                                var sourceDir = chromeHoundsDirs[0];
-                                Directory.CreateDirectory(isoDestinationDir);
-                                FileUtils.CopyDirectory(sourceDir, chromeHoundsDestDir);
-                                _loggingService.LogInformation($"Copied Chromehounds folder to: \"{chromeHoundsDestDir}\"");
-                                break;
+                                Directory.Move(extractedDir, chromeHoundsDestDir);
                             }
+                            else
+                            {
+                                await Application.Current.Dispatcher.InvokeAsync(() =>
+                                {
+                                    _loggingService.LogError($"Extraction failed or folder not found: \"{isoName}\"");
+                                    _messageBoxService.ShowError(
+                                        $"Extraction failed or folder not found: \"{isoName}\"");
+                                });
+                                return false;
+                            }
+
+                            break;
+                        }
+                        case 1:
+                        {
+                            // Use extracted Chromehounds folder
+                            var sourceDir = chromeHoundsDirs[0];
+                            Directory.CreateDirectory(isoDestinationDir);
+                            FileUtils.CopyDirectory(sourceDir, chromeHoundsDestDir);
+                            _loggingService.LogInformation($"Copied Chromehounds folder to: \"{chromeHoundsDestDir}\"");
+                            break;
+                        }
                     }
 
                     //Verify extraction (back to UI thread for property update)
-                    var extracted = await Application.Current.Dispatcher.InvokeAsync(() => AppService.Instance.ChromeHoundsExtracted);
+                    var extracted =
+                        await Application.Current.Dispatcher.InvokeAsync(() =>
+                            AppService.Instance.ChromeHoundsExtracted);
 
                     if (extracted) return true;
 
                     await Application.Current.Dispatcher.InvokeAsync(() =>
                     {
                         _loggingService.LogError("The ISO was either not correct or was not extracted correctly");
-                        _messageBoxService.ShowWarning("The ISO was either not correct or was not extracted correctly, please make sure its a ChromeHounds Iso and try again.");
+                        _messageBoxService.ShowWarning(
+                            "The ISO was either not correct or was not extracted correctly, please make sure its a ChromeHounds Iso and try again.");
                     });
                     return false;
 
@@ -384,7 +438,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                 Directory.CreateDirectory(destDir);
                 FileUtils.CopyDirectory(mapPackDir, destDir);
 
-                
+
                 _loggingService.LogInformation("Default map-packs installation complete.");
 
                 return true;
@@ -413,7 +467,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                 Directory.CreateDirectory(AppService.XeniaDir);
                 // Recursively copy all files and subdirectories
                 FileUtils.CopyDirectory(AppService.InternalXeniaFilesDir, AppService.XeniaDir);
-              
+
                 _loggingService.LogInformation("Xenia files moved to LocalAppData successfully.");
             }
             catch (Exception ex)
@@ -428,86 +482,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             return true;
         }
 
-        private async Task<bool> InstallTailScaleAsync()
-        {
-            try
-            {
-                // Input auth key
-
-                var authKey = PromptForAuthKey();
-                if (string.IsNullOrWhiteSpace(authKey))
-                {
-                    _loggingService.LogError("No auth key entered.");
-                    _messageBoxService.ShowError("You must enter a Tailscale auth key to continue.");
-                    return false;
-                }
-
-                // Authenticate with server
-                var loginServer = "https://headscale.opencombas.org:443";
-                var tailscaleAuth = Process.Start(new ProcessStartInfo
-                {
-                    FileName = AppService.TailScaleExe,
-                    Arguments = $"up --login-server {loginServer} --authkey {authKey}",
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                });
-
-                if (tailscaleAuth == null)
-                {
-
-                    _loggingService.LogError($"TailScale authenticate failed as the process returned null");
-                    _messageBoxService.ShowError("TailScale authenticate could not be run.");
-                    return false;
-                }
-
-                await tailscaleAuth.WaitForExitAsync();
-
-                // Launch Xenia to initialize its file paths
-
-                var xeniaProcess = Process.Start(new ProcessStartInfo
-                {
-                    FileName = AppService.XeniaExe,
-                    Arguments = $"\"{AppService.ChromeHoundsXex}\"",
-                    WorkingDirectory = AppService.XeniaDir,
-                    WindowStyle = ProcessWindowStyle.Minimized,
-                    UseShellExecute = true
-                });
-
-
-                if (xeniaProcess == null)
-                {
-
-                    _loggingService.LogError($"Xenia startup failed as the process returned null");
-                    _messageBoxService.ShowError("Xenia Startup Failed");
-                    return false;
-                }
-
-
-                await Task.Delay(5000); // Wait 5 seconds
-
-                // Kill Xenia process
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = "taskkill",
-                    Arguments = $"/im \"{Path.GetFileName(AppService.XeniaExe)}\" /f",
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                });
-
-                _loggingService.LogInformation("Install of TailScale complete.");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _loggingService.LogError($"Failed to Install TailScale: {ex.Message}");
-                _messageBoxService.ShowError("Failed to install TailScale.");
-                return false;
-            }
-
-        }
-        
-        // Method to prompt for Tailscale auth key
-        private string? PromptForAuthKey()
+        private string? PromptForTailScaleAuthenticationKey()
         {
             var window = new AuthKeyWindow
             {
@@ -515,8 +490,6 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             };
             return window.ShowDialog() == true ? window.AuthKey : null;
         }
-
-
 
     }
 }

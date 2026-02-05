@@ -1,16 +1,15 @@
-﻿using System.Diagnostics;
+﻿using CombasLauncherApp.Enums;
+using CombasLauncherApp.Services.Interfaces;
+using CommunityToolkit.Mvvm.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Windows.Documents;
-using CombasLauncherApp.Enums;
-using CombasLauncherApp.Services.Interfaces;
 
 namespace CombasLauncherApp.Services.Implementations
 {
     public class XeniaService : IXeniaService
     {
         private readonly ILoggingService _loggingService = ServiceProvider.GetService<ILoggingService>();
-        private readonly IMessageBoxService _messageBoxService = ServiceProvider.GetService<IMessageBoxService>();
 
 
         public bool XeniaFound { get; private set; }
@@ -197,6 +196,7 @@ namespace CombasLauncherApp.Services.Implementations
         {
             if (!Directory.Exists(gameDataFolderPath))
             {
+                _loggingService.LogError($"The selected game data folder: {gameDataFolderPath}, does not exist.");
                 return ImportGameDataResult.GameDataFolderNotFound;
             }
 
@@ -208,12 +208,14 @@ namespace CombasLauncherApp.Services.Implementations
                 var sourceFolder = Path.Combine(gameDataFolderPath, folderName);
                 if (!Directory.Exists(sourceFolder))
                 {
+                    _loggingService.LogError($"The selected source folder: {sourceFolder}, does not exist in the directory: {gameDataFolderPath}.");
                     return ImportGameDataResult.SourceFolderNotFound;
                 }
 
                 var xeniaDir = Directory.GetParent(XeniaPath)?.FullName;
                 if (string.IsNullOrWhiteSpace(xeniaDir) || !Directory.Exists(xeniaDir))
                 {
+                    _loggingService.LogError($"The Xenia directory: {xeniaDir}, provided is missing or invalid.");
                     return ImportGameDataResult.XeniaPathInvalid;
                 }
 
@@ -246,6 +248,7 @@ namespace CombasLauncherApp.Services.Implementations
                 }
             }
 
+            _loggingService.LogInformation("Importing game date was successful.");
             return ImportGameDataResult.Success;
         }
     }
