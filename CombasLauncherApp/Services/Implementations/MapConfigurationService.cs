@@ -88,6 +88,13 @@ namespace CombasLauncherApp.Services.Implementations
 
             foreach (var row in param.Rows)
             {
+                var mapUid = row.Cells.FirstOrDefault(n => n.InternalName == "mapUid")?.Value;
+
+                if (mapUid == null)
+                {
+                    continue;
+                }
+                
                 var mapNameId = row.Cells.FirstOrDefault(n => n.InternalName == "mapNameId")?.Value;
 
                 if (mapNameId == null)
@@ -109,6 +116,7 @@ namespace CombasLauncherApp.Services.Implementations
                 maps.Add(new MapEntry
                 {
                     paramRowId = row.ID,
+                    MapUid = (uint)mapUid, 
                     Enabled = mapEnabled,
                     MapName = mapName,
                     MapSizeX = mapSizeX,

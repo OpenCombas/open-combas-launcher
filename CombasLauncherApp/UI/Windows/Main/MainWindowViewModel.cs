@@ -16,8 +16,10 @@ namespace CombasLauncherApp.UI
         public string Version => AppService.Instance.CurrentVersion;
 
         [ObservableProperty]
-        private bool _isInstallComplete = AppService.Instance.IsInstallComplete;
+        private bool _isDeveloperAllowed = AppService.Instance.IsDeveloperModeEnabled;
 
+        [ObservableProperty]
+        private bool _isInstallComplete = AppService.Instance.IsInstallComplete;
 
         [ObservableProperty]
         private bool _chromeHoundsExtracted;

@@ -7,9 +7,9 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="UI/Resources/Colors.xaml"/>
-
+                <ResourceDictionary Source="UI/Resources/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-
+            
             <converters:BooleanAndConverter x:Key="BooleanAndConverter"/>
             <converters:BooleanAndVisibilityConverter x:Key="BooleanAndVisibilityConverter"/>
             <converters:BooleanNandVisibilityConverter x:Key="BooleanNandVisibilityConverter"/>

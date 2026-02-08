@@ -1,5 +1,6 @@
 using System.Windows;
 using CombasLauncherApp.Services.Interfaces;
+using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 
 namespace CombasLauncherApp.Services.Implementations;
@@ -8,7 +9,9 @@ public class MessageBoxService : IMessageBoxService
 {
     public MessageBoxResult Show(string text, string caption = "", MessageBoxButton buttons = MessageBoxButton.OK, MessageBoxImage icon = MessageBoxImage.None)
     {
-        return MessageBox.Show(text, caption, buttons, icon);
+        var owner = Application.Current?.MainWindow;
+
+        return owner != null ? MessageBox.Show(owner, text, caption, buttons, icon) : MessageBox.Show(text, caption, buttons, icon);
     }
 
 

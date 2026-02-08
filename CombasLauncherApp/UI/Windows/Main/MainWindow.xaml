@@ -15,6 +15,14 @@
         <DataTemplate DataType="{x:Type homePage:HomePageViewModel}">
             <homePage:HomePage />
         </DataTemplate>
+        <Storyboard x:Key="ShieldSpinStoryboard" RepeatBehavior="Forever">
+            <DoubleAnimation
+                Storyboard.TargetName="ShieldRotation"
+                Storyboard.TargetProperty="Angle"
+                From="0" To="360"
+                Duration="0:0:8"
+            />
+        </Storyboard>
     </Window.Resources>
     
     
@@ -26,20 +34,85 @@
         </Grid.RowDefinitions>
 
         <!-- Header Bar -->
-        <Grid Grid.Row="0" HorizontalAlignment="Right">
-            <StackPanel Orientation="Horizontal">
-                <Button Content="Status" Padding="4" Command="{Binding OpenStatusPageCommand}" Margin="4,0"/>
-                <Button Content="Developer Menu" Padding="4" Command="{Binding OpenDeveloperMenuCommand}" Margin="4,0"/>
-                <Button Content="Settings" Padding="4" Command="{Binding OpenSettingsPageCommand}" IsEnabled="{Binding IsInstallComplete}"/>
+        <Grid Grid.Row="0" Background="{StaticResource OverlayBackground}">
+            <StackPanel Orientation="Horizontal" Margin="4" HorizontalAlignment="Right">
+                <Button Content="Status" Padding="4" Command="{Binding OpenStatusPageCommand}" Margin="4,0,0,0"/>
+                <Button Content="Developer Menu" Padding="4" Command="{Binding OpenDeveloperMenuCommand}" Visibility="{Binding IsDeveloperAllowed, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="4,0,0,0"/>
+                <Button Content="Settings" Padding="4" Command="{Binding OpenSettingsPageCommand}" IsEnabled="{Binding IsInstallComplete}" Margin="4,0,0,0"/>
             </StackPanel>
         </Grid>
 
+        <Viewport3D Grid.Row="1" Panel.ZIndex="0">
+            <!-- Camera -->
+            <Viewport3D.Camera>
+                <PerspectiveCamera Position="0,0,5" LookDirection="0,0,-1" UpDirection="0,1,0" FieldOfView="60"/>
+            </Viewport3D.Camera>
+
+            <!-- Lights -->
+            <ModelVisual3D>
+                <ModelVisual3D.Content>
+                    <DirectionalLight Color="White" Direction="-1,-1,-2"/>
+                </ModelVisual3D.Content>
+            </ModelVisual3D>
+
+            <ModelVisual3D>
+                <ModelVisual3D.Content>
+                    <GeometryModel3D>
+                        <GeometryModel3D.Geometry>
+                            <MeshGeometry3D
+                                Positions="-1,1,0    1,1,0    1,-1,0    -1,-1,0   -1,1,-0.3   1,1,-0.3   1,-1,-0.3   -1,-1,-0.3"
+                                TextureCoordinates="0,0   1,0   1,1   0,1   0,0   1,0   1,1   0,1"
+                                TriangleIndices="
+                                0 3 2  0 2 1        
+                                4 5 6  4 6 7        
+                                0 1 5  0 5 4         
+                                1 2 6  1 6 5         
+                                2 3 7  2 7 6        
+                                3 0 4  3 4 7         
+                                "/>
+                        </GeometryModel3D.Geometry>
+                        <GeometryModel3D.Material>
+                            <DiffuseMaterial>
+                                <DiffuseMaterial.Brush>
+                                    <VisualBrush>
+                                        <VisualBrush.Visual>
+                                            <Grid Background="SteelBlue" Height="100" Width="100">
+                                                <TextBlock Text="PlaceHolder"
+                                                FontSize="14"
+                                                FontWeight="Bold"
+                                                Foreground="White"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </DiffuseMaterial.Brush>
+                            </DiffuseMaterial>
+                        </GeometryModel3D.Material>
+                        <GeometryModel3D.Transform>
+                            <RotateTransform3D CenterX="0" CenterY="0" CenterZ="-0.15" >
+                                <RotateTransform3D.Rotation>
+                                    <AxisAngleRotation3D x:Name="ShieldRotation" Axis="0,1,0" Angle="0"/>
+                                </RotateTransform3D.Rotation>
+                            </RotateTransform3D>
+                        </GeometryModel3D.Transform>
+                    </GeometryModel3D>
+                </ModelVisual3D.Content>
+            </ModelVisual3D>
+
+            <Viewport3D.Triggers>
+                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                    <BeginStoryboard Storyboard="{StaticResource ShieldSpinStoryboard}" />
+                </EventTrigger>
+            </Viewport3D.Triggers>
+
+        </Viewport3D>
         <!-- Main Navigation Content -->
         <ContentPresenter Grid.Row="1" Content="{Binding CurrentPage}"/> 
 
         <!-- Footer Bar -->
-        <Grid Grid.Row="2">
-            <StackPanel Orientation="Horizontal">
+        <Grid Grid.Row="2" Background="{StaticResource OverlayBackground}">
+            <StackPanel Orientation="Horizontal" >
              
             </StackPanel>
         </Grid>
@@ -47,7 +120,6 @@
 
         <!-- Settings Overlay -->
         <Grid Grid.Row="1" x:Name="SettingsOverlay"
-              Background="{StaticResource MainBackground}"
               Visibility="{Binding IsSettingsOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
               Panel.ZIndex="200">
             <settingsPage:SettingsPage DataContext="{Binding SettingsPageViewModel}" />
@@ -55,7 +127,6 @@
 
         <!-- Status Overlay -->
         <Grid Grid.Row="1" x:Name="StatusOverlay" VerticalAlignment="Top"
-              Background="{StaticResource MainBackground}"
               Visibility="{Binding IsStatusOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
               Panel.ZIndex="200">
             <StackPanel Grid.ColumnSpan="2" Margin="4">

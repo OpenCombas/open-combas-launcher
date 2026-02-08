@@ -50,6 +50,7 @@
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
+                                <GridViewColumn Header="UID"  DisplayMemberBinding="{Binding MapUid}"></GridViewColumn>
                                 <GridViewColumn Header="Map Name" DisplayMemberBinding="{Binding MapName}" Width="200"/>
                                 <GridViewColumn Header="Size" DisplayMemberBinding="{Binding MapSizeDisplay}" Width="80"/>
                             </GridView>

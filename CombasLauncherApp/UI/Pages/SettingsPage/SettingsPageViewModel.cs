@@ -5,7 +5,9 @@ using CombasLauncherApp.Services.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.IO;
+using System.Windows;
 using CombasLauncherApp.Utilities;
+using Application = System.Windows.Application;
 
 namespace CombasLauncherApp.UI.Pages.SettingsPage
 {
@@ -42,6 +44,19 @@ namespace CombasLauncherApp.UI.Pages.SettingsPage
             _loggingService.ShowLogs();
         }
 
+        [RelayCommand]
+        private void RerunInitialSetup()
+        {
+            var result = _messageBoxService.ShowWarning("Are you sure you want to re-run the initial setup?,", MessageBoxButton.YesNo);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                AppService.Instance.IsInstallComplete = false;
+                _messageBoxService.ShowInformation("Initial setup has been reset. The application will now close. Please restart the application to run the initial setup again.");
+                Application.Current.Shutdown();
+            }
+        }
+        
         private void ImportGameSaveDataAsync()
         {
             string? selectedDir = null;

@@ -16,6 +16,10 @@ public partial class MapEntry : ObservableObject
     [ObservableProperty]
     private bool _enabled;
 
+    [JsonPropertyName("mapUid")]
+    public uint MapUid { get; set; }
+
+
     [JsonPropertyName("mapName")]
     public string? MapName { get; set; }
 

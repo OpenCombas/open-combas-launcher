@@ -55,6 +55,17 @@ public class AppService
     
     public bool ChromeHoundsExtracted => IsChromeHoundsExtracted();
 
+    public bool IsDeveloperModeEnabled
+    {
+        get
+        {
+            #if DEBUG
+                return true;
+            #else
+                return false;
+            #endif
+        }
+    }
     private bool _isInstallComplete;
 
     public bool IsInstallComplete

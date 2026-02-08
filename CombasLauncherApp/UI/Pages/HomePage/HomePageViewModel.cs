@@ -83,7 +83,8 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             {
                 AppService.Instance.IsLoading = true;
 
-                if (!await ImportChromeHoundsIso())
+                var isoImportResult = await ImportChromeHoundsIso();
+                if (isoImportResult != ImportChromeHoundsIsoResult.Success && isoImportResult != ImportChromeHoundsIsoResult.Skipped)
                 {
                     return;
                 }
@@ -242,7 +243,9 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             }
         }
 
-        private async Task<bool> ImportChromeHoundsIso()
+
+
+        private async Task<ImportChromeHoundsIsoResult> ImportChromeHoundsIso()
         {
             if (AppService.Instance.ChromeHoundsExtracted)
             {
@@ -252,8 +255,8 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                     MessageBoxButton.YesNo);
                 if (reImport != MessageBoxResult.Yes)
                 {
-                    _loggingService.LogError("Aborted");
-                    return false;
+                    _loggingService.LogError("Iso was already extracted, skipping.");
+                    return ImportChromeHoundsIsoResult.Skipped;
                 }
             }
 
@@ -270,7 +273,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                 else
                 {
                     _loggingService.LogError("No folder selected.");
-                    return false;
+                    return ImportChromeHoundsIsoResult.IsoFolderNotFound;
                 }
             }
 
@@ -299,7 +302,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                                 choice = 1; // Use folder
                                 break;
                             default:
-                                return false;
+                                return ImportChromeHoundsIsoResult.Aborted;
                         }
                     }
                     else if (isoFiles.Length > 0)
@@ -315,10 +318,9 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                         await Application.Current.Dispatcher.InvokeAsync(() =>
                         {
                             _loggingService.LogError("No Chromehounds ISO or extracted folder found.");
-                            _messageBoxService.ShowError(
-                                "No Chromehounds ISO or extracted folder found in the selected directory.");
+                            _messageBoxService.ShowError("No Chromehounds ISO or extracted folder found in the selected directory.");
                         });
-                        return false;
+                        return ImportChromeHoundsIsoResult.IsoFolderNotFound;
                     }
 
                     var isoDestinationDir = Path.GetDirectoryName(AppService.ChromeHoundsDir);
@@ -359,7 +361,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                                         "Extraction of the ISO could not be run as the process returned null");
                                     _messageBoxService.ShowError("Extraction of the ISO Failed");
                                 });
-                                return false;
+                                return ImportChromeHoundsIsoResult.IsoExtractionFailed;
                             }
 
                             await extractProcess.WaitForExitAsync();
@@ -379,7 +381,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                                     _messageBoxService.ShowError(
                                         $"Extraction failed or folder not found: \"{isoName}\"");
                                 });
-                                return false;
+                                return ImportChromeHoundsIsoResult.IsoExtractionFailed;
                             }
 
                             break;
@@ -400,7 +402,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                         await Application.Current.Dispatcher.InvokeAsync(() =>
                             AppService.Instance.ChromeHoundsExtracted);
 
-                    if (extracted) return true;
+                    if (extracted) return ImportChromeHoundsIsoResult.Success;
 
                     await Application.Current.Dispatcher.InvokeAsync(() =>
                     {
@@ -408,7 +410,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                         _messageBoxService.ShowWarning(
                             "The ISO was either not correct or was not extracted correctly, please make sure its a ChromeHounds Iso and try again.");
                     });
-                    return false;
+                    return ImportChromeHoundsIsoResult.IsoExtractionFailed;
 
                 }
                 catch (Exception ex)
@@ -418,7 +420,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                         _loggingService.LogError($"Exception during import: {ex.Message}");
                         _messageBoxService.ShowError("An error occurred during import.");
                     });
-                    return false;
+                    return ImportChromeHoundsIsoResult.ExceptionThrown;
                 }
             });
         }

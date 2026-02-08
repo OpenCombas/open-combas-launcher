@@ -6,7 +6,7 @@
   <Unicode>False</Unicode>
   <FormatVersion>0</FormatVersion>
   <Fields>
-    	<Field Def="u32 mapUid">
+  <Field Def="u32 mapUid">
 		<DisplayName>Map UID</DisplayName>
 	</Field>
 	
