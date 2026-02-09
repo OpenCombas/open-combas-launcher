@@ -31,6 +31,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition />
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Header Bar -->
@@ -108,10 +109,10 @@
 
         </Viewport3D>
         <!-- Main Navigation Content -->
-        <ContentPresenter Grid.Row="1" Content="{Binding CurrentPage}"/> 
+        <ContentPresenter Grid.Row="2" Content="{Binding CurrentPage}"/> 
 
         <!-- Footer Bar -->
-        <Grid Grid.Row="2" Background="{StaticResource OverlayBackground}">
+        <Grid Grid.Row="3" Background="{StaticResource OverlayBackground}">
             <StackPanel Orientation="Horizontal" >
              
             </StackPanel>

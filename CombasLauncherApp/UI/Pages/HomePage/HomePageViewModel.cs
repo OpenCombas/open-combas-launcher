@@ -44,7 +44,13 @@ namespace CombasLauncherApp.UI.Pages.HomePage
         };
 
 
-        [ObservableProperty] private KeyValuePair<string, string>? _selectedMapPack;
+        [ObservableProperty] 
+        private KeyValuePair<string, string>? _selectedMapPack;
+
+        partial void OnSelectedMapPackChanged(KeyValuePair<string, string>? value)
+        {
+            _ = SwitchMapPackAsync(value?.Key, value?.Value);
+        }
 
         public HomePageViewModel()
         {
@@ -152,19 +158,13 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             }
         }
 
-        [RelayCommand]
-        private async Task SwitchMapPack()
-        {
-            await SwitchMapPackAsync();
-        }
-
-        private async Task SwitchMapPackAsync()
+        private async Task SwitchMapPackAsync(string? mapPackName, string? mapPackUrl)
         {
             try
             {
+                AppService.Instance.IsLoading = true;
+
                 // Delete old api map pack directory
-                var mapPackName = SelectedMapPack?.Key;
-                var mapPackUrl = SelectedMapPack?.Value;
                 var isDefault = false;
                 if (string.IsNullOrEmpty(mapPackName) || string.IsNullOrEmpty(mapPackUrl))
                 {
@@ -230,16 +230,21 @@ namespace CombasLauncherApp.UI.Pages.HomePage
                 }
                 else
                 {
+                    await Task.Delay(1000); // Add a short delay to keep the loading consistent as Default doesn't change the api
                     mapPackName = "Default";
                 }
 
                 _loggingService.LogInformation($"Map pack switched to {mapPackName}.");
-                _messageBoxService.ShowInformation($"Map pack switched to {mapPackName}.");
             }
             catch (Exception ex)
             {
                 _loggingService.LogError($"Failed to switch map pack: {ex.Message}");
                 _messageBoxService.ShowError("Failed to switch map pack.");
+            }
+            finally
+            {
+                AppService.Instance.IsLoading = false;
+
             }
         }
 

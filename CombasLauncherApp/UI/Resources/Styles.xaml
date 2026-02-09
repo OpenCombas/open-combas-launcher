@@ -109,13 +109,11 @@
                                   MaxHeight="200"
                                   Background="{StaticResource ButtonBrush}">
                                     <Border x:Name="DropDownBorder"
-                                        Background="{StaticResource ButtonBrush}"
+                                        Background="{StaticResource OverlayBackground}"
                                         BorderBrush="Black"
                                         BorderThickness="1"/>
-                                    <ScrollViewer Margin="4,6,4,6"
-                                              SnapsToDevicePixels="True">
-                                        <StackPanel IsItemsHost="True"
-                                                KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
                                     </ScrollViewer>
                                 </Grid>
                             </Popup>
@@ -126,13 +124,13 @@
                             <Setter TargetName="border" Property="Background" Value="LightGray"/>
                             <Setter Property="Foreground" Value="DarkGray"/>
                         </Trigger>
-                        
+                      
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
-    <Style TargetType="{x:Type ToggleButton}" x:Key="FlashingToggleButton">
+    <Style TargetType="{x:Type ToggleButton}" >
         <Setter Property="Background" Value="{StaticResource ButtonBrush}"/>
        
         <Setter Property="BorderBrush" Value="Black"/>
@@ -144,7 +142,8 @@
                     <Border x:Name="border"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}">
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center"
                                       VerticalAlignment="Center"/>
                     </Border>
@@ -174,7 +173,65 @@
         </Setter>
     </Style>
 
-
+    <Style TargetType="{x:Type ComboBoxItem}">
+        <Setter Property="Background" Value="{StaticResource ButtonBrush}"/>
+        <Setter Property="Foreground" Value="Black"/>
+        <Setter Property="Margin" Value="1"/>
+        <Setter Property="FontFamily" Value="sans-serif"/>
+        <Setter Property="FontWeight" Value="DemiBold"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="border"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="Black"
+                        BorderThickness="1"
+                        Padding="4">
+                        <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard Name="HoverFlashStoryboard">
+                                    <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                        <ColorAnimationUsingKeyFrames
+                                            Storyboard.TargetName="border"
+                                            Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)">
+                                            <LinearColorKeyFrame Value="{StaticResource ButtonOrange}" KeyTime="0:0:0"/>
+                                            <LinearColorKeyFrame Value="{StaticResource ButtonDarkOrange}" KeyTime="0:0:0.6"/>
+                                        </ColorAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <StopStoryboard BeginStoryboardName="HoverFlashStoryboard"/>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard Name="SelectedFlashStoryboard">
+                                    <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                        <ColorAnimationUsingKeyFrames
+                                        Storyboard.TargetName="border"
+                                        Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)">
+                                            <LinearColorKeyFrame Value="{StaticResource ButtonOrange}" KeyTime="0:0:0"/>
+                                            <LinearColorKeyFrame Value="{StaticResource ButtonDarkOrange}" KeyTime="0:0:0.6"/>
+                                        </ColorAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <StopStoryboard BeginStoryboardName="SelectedFlashStoryboard"/>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="DarkGray"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 
 </ResourceDictionary>

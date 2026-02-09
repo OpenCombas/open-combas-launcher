@@ -13,7 +13,7 @@
 
     <SolidColorBrush x:Key="MainBackground" Color="{StaticResource DarkGreen}"/>
 
-    <SolidColorBrush x:Key="OverlayBackground" Color="{StaticResource BackgroundGrey}"></SolidColorBrush>
+    <SolidColorBrush x:Key="OverlayBackground" Color="{StaticResource BackgroundGrey}"/>
 
 
     <SolidColorBrush x:Key="MainForeground" Color="{StaticResource MetalGrey}"/>
