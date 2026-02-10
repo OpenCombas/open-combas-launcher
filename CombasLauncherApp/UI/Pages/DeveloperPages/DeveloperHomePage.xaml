@@ -57,10 +57,10 @@
                         </ListView.View>
                     </ListView>
                     <StackPanel Grid.Row="2" Orientation="Horizontal">
-                        <Button Content="Read Current Map Pack" Command="{Binding ReadCurrentMapPackCommand}" Margin="5,0"/>
-                        <Button Content="Write Current Map Pack" Command="{Binding WriteCurrentMapPackCommand}" Margin="5,0"/>
-                        <Button Content="Import Map Pack" Command="{Binding ImportCurrentMapPackCommand}" Margin="5,0"/>
-                        <Button Content="Export Current Map Pack" Command="{Binding ExportCurrentMapPackCommand}" Margin="5,0"/>
+                        <Button Content="Read Current Map Pack" Command="{Binding ReadCurrentMapPackCommand}" Padding="4" Margin="5,0"/>
+                        <Button Content="Write Current Map Pack" Command="{Binding WriteCurrentMapPackCommand}" Padding="4" Margin="5,0"/>
+                        <Button Content="Import Map Pack" Command="{Binding ImportCurrentMapPackCommand}" Padding="4" Margin="5,0"/>
+                        <Button Content="Export Current Map Pack" Command="{Binding ExportCurrentMapPackCommand}" Padding="4" Margin="5,0"/>
 
                     </StackPanel>
                 </Grid>

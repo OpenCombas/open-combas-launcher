@@ -10,9 +10,9 @@
     <StartupObject>CombasLauncherApp.App</StartupObject>
     <ApplicationIcon>UI\Resources\OpenCOMBAS.ico</ApplicationIcon>
     <UseWindowsForms>True</UseWindowsForms>
-    <AssemblyVersion>0.0.0.1</AssemblyVersion>
-    <FileVersion>0.0.0.1</FileVersion>
-    <Version>0.0.1</Version>
+    <AssemblyVersion>0.0.0.2</AssemblyVersion>
+    <FileVersion>0.0.0.2</FileVersion>
+    <Version>0.0.2</Version>
     <InformationalVersion>0.0.1</InformationalVersion>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <Platforms>AnyCPU;x64</Platforms>
@@ -30,6 +30,7 @@
   <ItemGroup>
     <None Remove="ParamDefinitions\MenuMapInfo.xml" />
     <None Remove="tools\extract-xiso.exe" />
+    <None Remove="UI\Resources\Logo.obj" />
     <None Remove="UI\Resources\OpenCOMBAS.ico" />
   </ItemGroup>
 
@@ -43,12 +44,17 @@
     <Content Include="tools\README.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="UI\Resources\Logo.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="UI\Resources\OpenCOMBAS.ico" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+    <PackageReference Include="HelixToolkit" Version="3.1.2" />
+    <PackageReference Include="HelixToolkit.Wpf" Version="3.1.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup>

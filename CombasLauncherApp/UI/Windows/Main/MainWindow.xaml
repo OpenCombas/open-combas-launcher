@@ -7,6 +7,7 @@
         xmlns:homePage="clr-namespace:CombasLauncherApp.UI.Pages.HomePage"
         xmlns:developerPages="clr-namespace:CombasLauncherApp.UI.Pages.DeveloperPages"
         xmlns:settingsPage="clr-namespace:CombasLauncherApp.UI.Pages.SettingsPage"
+        xmlns:helix="http://helix-toolkit.org/wpf"
         mc:Ignorable="d"
         Title="{Binding Version}" Height="450" Width="800" Background="{StaticResource MainBackground}" d:DataContext="{d:DesignInstance ui:MainWindowViewModel}">
     
@@ -15,14 +16,17 @@
         <DataTemplate DataType="{x:Type homePage:HomePageViewModel}">
             <homePage:HomePage />
         </DataTemplate>
-        <Storyboard x:Key="ShieldSpinStoryboard" RepeatBehavior="Forever">
-            <DoubleAnimation
-                Storyboard.TargetName="ShieldRotation"
-                Storyboard.TargetProperty="Angle"
-                From="0" To="360"
-                Duration="0:0:8"
-            />
+        <Storyboard x:Key="ShieldSpinStoryboard" RepeatBehavior="Forever" AutoReverse="True">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="ShieldRotation"
+                                           Storyboard.TargetProperty="Angle">
+                <LinearDoubleKeyFrame Value="45" KeyTime="0:0:8"/>
+                <LinearDoubleKeyFrame Value="0" KeyTime="0:0:16"/>
+                <LinearDoubleKeyFrame Value="-45" KeyTime="0:0:24"/>
+
+            </DoubleAnimationUsingKeyFrames>
+
         </Storyboard>
+      
     </Window.Resources>
     
     
@@ -42,21 +46,41 @@
                 <Button Content="Settings" Padding="4" Command="{Binding OpenSettingsPageCommand}" IsEnabled="{Binding IsInstallComplete}" Margin="4,0,0,0"/>
             </StackPanel>
         </Grid>
-
-        <Viewport3D Grid.Row="1" Panel.ZIndex="0">
-            <!-- Camera -->
-            <Viewport3D.Camera>
+        <helix:HelixViewport3D x:Name="helixViewport"  Grid.Row="1" ShowViewCube="False">
+            <helix:HelixViewport3D.Camera>
                 <PerspectiveCamera Position="0,0,5" LookDirection="0,0,-1" UpDirection="0,1,0" FieldOfView="60"/>
-            </Viewport3D.Camera>
-
-            <!-- Lights -->
+            </helix:HelixViewport3D.Camera>
             <ModelVisual3D>
                 <ModelVisual3D.Content>
                     <DirectionalLight Color="White" Direction="-1,-1,-2"/>
                 </ModelVisual3D.Content>
             </ModelVisual3D>
+            <ModelVisual3D Content="{Binding SceneModel}">
+                <ModelVisual3D.Transform>
+                    <Transform3DGroup>
+                        <TranslateTransform3D OffsetX="-25" OffsetY="-10" OffsetZ="8">
+                            
+                        </TranslateTransform3D>
+                        <RotateTransform3D CenterZ="-30">
+                            <RotateTransform3D.Rotation>
+                                <AxisAngleRotation3D Axis="1,0,0" Angle="90"/>
+                            </RotateTransform3D.Rotation>
 
-            <ModelVisual3D>
+                        </RotateTransform3D>
+                        <RotateTransform3D CenterZ="-40">
+                            <RotateTransform3D.Rotation >
+                                <AxisAngleRotation3D x:Name="ShieldRotation" Axis="0,1,0" Angle="0"/>
+                            </RotateTransform3D.Rotation>
+                        </RotateTransform3D>
+                    </Transform3DGroup>
+                </ModelVisual3D.Transform>
+            </ModelVisual3D>
+            <helix:HelixViewport3D.Triggers>
+                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                    <BeginStoryboard Storyboard="{StaticResource ShieldSpinStoryboard}" />
+                </EventTrigger>
+            </helix:HelixViewport3D.Triggers>
+            <!--<ModelVisual3D>
                 <ModelVisual3D.Content>
                     <GeometryModel3D>
                         <GeometryModel3D.Geometry>
@@ -99,15 +123,14 @@
                         </GeometryModel3D.Transform>
                     </GeometryModel3D>
                 </ModelVisual3D.Content>
-            </ModelVisual3D>
-
-            <Viewport3D.Triggers>
+            </ModelVisual3D>-->
+            <!--<helix:HelixViewport3D.Triggers>
                 <EventTrigger RoutedEvent="FrameworkElement.Loaded">
                     <BeginStoryboard Storyboard="{StaticResource ShieldSpinStoryboard}" />
                 </EventTrigger>
-            </Viewport3D.Triggers>
-
-        </Viewport3D>
+            </helix:HelixViewport3D.Triggers>-->
+        </helix:HelixViewport3D>
+    
         <!-- Main Navigation Content -->
         <ContentPresenter Grid.Row="2" Content="{Binding CurrentPage}"/> 
 

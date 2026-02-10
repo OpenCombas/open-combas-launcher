@@ -11,7 +11,6 @@ namespace CombasLauncherApp.UI
         {
             InitializeComponent();
         }
-
-
+        
     }
 }

@@ -1,4 +1,5 @@
-﻿using CombasLauncherApp.Services;
+﻿using System.IO;
+using CombasLauncherApp.Services;
 using CombasLauncherApp.Services.Implementations;
 using CombasLauncherApp.Services.Interfaces;
 using CombasLauncherApp.UI.Pages.DeveloperPages;
@@ -6,6 +7,12 @@ using CombasLauncherApp.UI.Pages.HomePage;
 using CombasLauncherApp.UI.Pages.SettingsPage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using HelixToolkit.Wpf;
+using Microsoft.VisualBasic.ApplicationServices;
+using Microsoft.VisualBasic.Logging;
+using System.Windows.Media.Media3D;
+using static SoulsFormats.MQB;
+
 
 namespace CombasLauncherApp.UI
 {
@@ -43,6 +50,9 @@ namespace CombasLauncherApp.UI
         private bool _isDeveloperMenuOpen;
 
         [ObservableProperty]
+        private Model3D? _sceneModel;
+
+        [ObservableProperty]
         private SettingsPageViewModel _settingsPageViewModel = new();
 
         [ObservableProperty]
@@ -58,6 +68,7 @@ namespace CombasLauncherApp.UI
             AppService.Instance.OnIsLoadingChanged += AppService_OnIsLoadingChanged;
             AppService.Instance.OnIsInstallCompleteChanged += AppService_OnIsInstallCompleteChanged;
             _navigationService.OnMainPageChanged += NavigationService_OnMainPageChanged;
+            LoadObjModel( Path.Combine(AppService.BaseDir,"UI", "Resources","Logo.obj"));
         }
 
         private void AppService_OnIsInstallCompleteChanged(object? sender, AppService.IsInstallCompleteChangedEventArgs e)
@@ -106,6 +117,12 @@ namespace CombasLauncherApp.UI
 
 
             IsStatusOpen = !IsStatusOpen;
+        }
+
+        private void LoadObjModel(string path)
+        {
+            var importer = new ModelImporter();
+            SceneModel = importer.Load(path);
         }
     }
 
