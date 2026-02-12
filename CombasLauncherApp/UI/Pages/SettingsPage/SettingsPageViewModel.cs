@@ -1,4 +1,5 @@
-﻿using CombasLauncherApp.Enums;
+﻿using System.Collections.ObjectModel;
+using CombasLauncherApp.Enums;
 using CombasLauncherApp.Services;
 using CombasLauncherApp.Services.Implementations;
 using CombasLauncherApp.Services.Interfaces;
@@ -188,6 +189,32 @@ namespace CombasLauncherApp.UI.Pages.SettingsPage
                 _loggingService.LogError($"Failed to install custom HOUNDs: {ex.Message}");
                 _messageBoxService.ShowError("Failed to install custom HOUNDs.");
             }
+        }
+
+        [ObservableProperty]
+        private string _selectedLanguageKey = AppService.Instance.SelectedLanguageKey;
+
+        partial void OnSelectedLanguageKeyChanged(string value)
+        {
+            ChangeLanguage(value);
+            AppService.Instance.SelectedLanguageKey = value; 
+            _loggingService.LogInformation($"Language changed to {value}");
+        }
+
+
+        private void ChangeLanguage(string languageKey)
+        {
+            // Backend stays in English, only UI changes
+            var dictPath = $"UI/Resources/Localisation/{languageKey}.xaml";
+            var dict = new ResourceDictionary { Source = new Uri(dictPath, UriKind.Relative) };
+
+            var oldDict = Application.Current.Resources.MergedDictionaries
+                .FirstOrDefault(d => d.Source != null && d.Source.OriginalString.Contains("Localisation"));
+
+            if (oldDict != null)
+                Application.Current.Resources.MergedDictionaries.Remove(oldDict);
+
+            Application.Current.Resources.MergedDictionaries.Add(dict);
         }
     }
 }

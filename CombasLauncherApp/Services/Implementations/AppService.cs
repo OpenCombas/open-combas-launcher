@@ -104,6 +104,8 @@ public class AppService
         }
     }
 
+    
+
     // Event and event args for IsLoading changes
     public event EventHandler<IsLoadingChangedEventArgs>? OnIsLoadingChanged;
 
@@ -112,7 +114,8 @@ public class AppService
         public bool IsLoading { get; } = isLoading;
     }
 
-   
+
+    public string SelectedLanguageKey { get; set; } = "English"; // Default to English, can be updated based on user selection and persisted
 
 
     // Data model for persistent data
@@ -120,6 +123,8 @@ public class AppService
     {
         public bool IsInstallComplete { get; set; }
         public string? CurrentMapPack { get; set; }
+
+        public string? SelectedLanguageKey { get; set; } 
     }
 
     private PersistentAppData _persistentData = new();
@@ -143,6 +148,7 @@ public class AppService
                 _persistentData = JsonSerializer.Deserialize<PersistentAppData>(json) ?? new PersistentAppData();
                 IsInstallComplete = _persistentData.IsInstallComplete;
                 CurrentMapPack = _persistentData.CurrentMapPack;
+                SelectedLanguageKey = _persistentData.SelectedLanguageKey ?? "English"; // Default to English if not set
             }
             else
             {
@@ -169,6 +175,7 @@ public class AppService
         {
             _persistentData.IsInstallComplete = IsInstallComplete;
             _persistentData.CurrentMapPack = CurrentMapPack;
+            _persistentData.SelectedLanguageKey = SelectedLanguageKey;
             var json = JsonSerializer.Serialize(_persistentData, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(PersistentDataFile, json);
             return 0;

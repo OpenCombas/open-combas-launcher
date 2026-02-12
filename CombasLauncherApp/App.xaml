@@ -8,6 +8,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="UI/Resources/Colors.xaml"/>
                 <ResourceDictionary Source="UI/Resources/Styles.xaml"/>
+                <ResourceDictionary Source="UI/Resources/Localisation/English.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             
             <converters:BooleanAndConverter x:Key="BooleanAndConverter"/>

@@ -9,22 +9,20 @@
         xmlns:settingsPage="clr-namespace:CombasLauncherApp.UI.Pages.SettingsPage"
         xmlns:helix="http://helix-toolkit.org/wpf"
         mc:Ignorable="d"
-        Title="{Binding Version}" Height="450" Width="800" Background="{StaticResource MainBackground}" d:DataContext="{d:DesignInstance ui:MainWindowViewModel}">
+        Title="{Binding Version}" Height="500" Width="700" ResizeMode="NoResize" Background="{StaticResource MainBackground}" d:DataContext="{d:DesignInstance ui:MainWindowViewModel}">
     
     <!-- Window Resources, primarily navigation templates for the content presenter -->
     <Window.Resources>
         <DataTemplate DataType="{x:Type homePage:HomePageViewModel}">
             <homePage:HomePage />
         </DataTemplate>
-        <Storyboard x:Key="ShieldSpinStoryboard" RepeatBehavior="Forever" AutoReverse="True">
+        <Storyboard x:Key="ShieldSpinStoryboard" RepeatBehavior="Forever">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetName="ShieldRotation"
                                            Storyboard.TargetProperty="Angle">
-                <LinearDoubleKeyFrame Value="45" KeyTime="0:0:8"/>
-                <LinearDoubleKeyFrame Value="0" KeyTime="0:0:16"/>
-                <LinearDoubleKeyFrame Value="-45" KeyTime="0:0:24"/>
-
+                <LinearDoubleKeyFrame Value="30" KeyTime="0:0:8"/>
+                <LinearDoubleKeyFrame Value="-30" KeyTime="0:0:24"/>
+                <LinearDoubleKeyFrame Value="0" KeyTime="0:0:32"/>
             </DoubleAnimationUsingKeyFrames>
-
         </Storyboard>
       
     </Window.Resources>
@@ -41,35 +39,44 @@
         <!-- Header Bar -->
         <Grid Grid.Row="0" Background="{StaticResource OverlayBackground}">
             <StackPanel Orientation="Horizontal" Margin="4" HorizontalAlignment="Right">
-                <Button Content="Status" Padding="4" Command="{Binding OpenStatusPageCommand}" Margin="4,0,0,0"/>
-                <Button Content="Developer Menu" Padding="4" Command="{Binding OpenDeveloperMenuCommand}" Visibility="{Binding IsDeveloperAllowed, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="4,0,0,0"/>
-                <Button Content="Settings" Padding="4" Command="{Binding OpenSettingsPageCommand}" IsEnabled="{Binding IsInstallComplete}" Margin="4,0,0,0"/>
+                <Button Content="{DynamicResource LOC_Status}" Padding="4" Command="{Binding OpenStatusPageCommand}" Margin="4,0,0,0"/>
+                <Button Content="{DynamicResource LOC_Developer_Menu}" Padding="4" Command="{Binding OpenDeveloperMenuCommand}" Visibility="{Binding IsDeveloperAllowed, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="4,0,0,0"/>
+                <Button Content="{DynamicResource LOC_Settings}" Padding="4" Command="{Binding OpenSettingsPageCommand}" IsEnabled="{Binding IsInstallComplete}" Margin="4,0,0,0"/>
             </StackPanel>
         </Grid>
-        <helix:HelixViewport3D x:Name="helixViewport"  Grid.Row="1" ShowViewCube="False">
+        <helix:HelixViewport3D  Grid.Row="1" ShowViewCube="False" IsEnabled="False">
             <helix:HelixViewport3D.Camera>
-                <PerspectiveCamera Position="0,0,5" LookDirection="0,0,-1" UpDirection="0,1,0" FieldOfView="60"/>
+                <PerspectiveCamera Position="0,34,0" LookDirection="0,-1,0" UpDirection="0,0,-1" FieldOfView="60" />
             </helix:HelixViewport3D.Camera>
             <ModelVisual3D>
                 <ModelVisual3D.Content>
-                    <DirectionalLight Color="White" Direction="-1,-1,-2"/>
+                    <DirectionalLight Color="White" Direction="0,-1,1"/>
                 </ModelVisual3D.Content>
-            </ModelVisual3D>
+            </ModelVisual3D> 
+            <!-- Debug Gridlines -->
+            <!--<helix:GridLinesVisual3D Center="0,0,0"
+                                     Length="50"
+                                     Width="50"
+                                     MinorDistance="1"
+                                     MajorDistance="5"
+                                     Thickness="0.1"
+                                     Fill="Black">
+                <helix:GridLinesVisual3D.Transform>
+                    <RotateTransform3D>
+                        <RotateTransform3D.Rotation>
+                            <AxisAngleRotation3D Axis="1,0,0" Angle="90"/>
+                        </RotateTransform3D.Rotation>
+                    </RotateTransform3D>
+                </helix:GridLinesVisual3D.Transform>
+            </helix:GridLinesVisual3D>-->
+           
             <ModelVisual3D Content="{Binding SceneModel}">
                 <ModelVisual3D.Transform>
                     <Transform3DGroup>
-                        <TranslateTransform3D OffsetX="-25" OffsetY="-10" OffsetZ="8">
-                            
-                        </TranslateTransform3D>
-                        <RotateTransform3D CenterZ="-30">
-                            <RotateTransform3D.Rotation>
-                                <AxisAngleRotation3D Axis="1,0,0" Angle="90"/>
-                            </RotateTransform3D.Rotation>
-
-                        </RotateTransform3D>
-                        <RotateTransform3D CenterZ="-40">
+                        <TranslateTransform3D OffsetX="-25.5" OffsetY="0" OffsetZ="38"/>
+                        <RotateTransform3D>
                             <RotateTransform3D.Rotation >
-                                <AxisAngleRotation3D x:Name="ShieldRotation" Axis="0,1,0" Angle="0"/>
+                                <AxisAngleRotation3D x:Name="ShieldRotation" Axis="0,0,1" Angle="0"/>
                             </RotateTransform3D.Rotation>
                         </RotateTransform3D>
                     </Transform3DGroup>
@@ -80,55 +87,7 @@
                     <BeginStoryboard Storyboard="{StaticResource ShieldSpinStoryboard}" />
                 </EventTrigger>
             </helix:HelixViewport3D.Triggers>
-            <!--<ModelVisual3D>
-                <ModelVisual3D.Content>
-                    <GeometryModel3D>
-                        <GeometryModel3D.Geometry>
-                            <MeshGeometry3D
-                                Positions="-1,1,0    1,1,0    1,-1,0    -1,-1,0   -1,1,-0.3   1,1,-0.3   1,-1,-0.3   -1,-1,-0.3"
-                                TextureCoordinates="0,0   1,0   1,1   0,1   0,0   1,0   1,1   0,1"
-                                TriangleIndices="
-                                0 3 2  0 2 1        
-                                4 5 6  4 6 7        
-                                0 1 5  0 5 4         
-                                1 2 6  1 6 5         
-                                2 3 7  2 7 6        
-                                3 0 4  3 4 7         
-                                "/>
-                        </GeometryModel3D.Geometry>
-                        <GeometryModel3D.Material>
-                            <DiffuseMaterial>
-                                <DiffuseMaterial.Brush>
-                                    <VisualBrush>
-                                        <VisualBrush.Visual>
-                                            <Grid Background="SteelBlue" Height="100" Width="100">
-                                                <TextBlock Text="PlaceHolder"
-                                                FontSize="14"
-                                                FontWeight="Bold"
-                                                Foreground="White"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"/>
-                                            </Grid>
-                                        </VisualBrush.Visual>
-                                    </VisualBrush>
-                                </DiffuseMaterial.Brush>
-                            </DiffuseMaterial>
-                        </GeometryModel3D.Material>
-                        <GeometryModel3D.Transform>
-                            <RotateTransform3D CenterX="0" CenterY="0" CenterZ="-0.15" >
-                                <RotateTransform3D.Rotation>
-                                    <AxisAngleRotation3D x:Name="ShieldRotation" Axis="0,1,0" Angle="0"/>
-                                </RotateTransform3D.Rotation>
-                            </RotateTransform3D>
-                        </GeometryModel3D.Transform>
-                    </GeometryModel3D>
-                </ModelVisual3D.Content>
-            </ModelVisual3D>-->
-            <!--<helix:HelixViewport3D.Triggers>
-                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-                    <BeginStoryboard Storyboard="{StaticResource ShieldSpinStoryboard}" />
-                </EventTrigger>
-            </helix:HelixViewport3D.Triggers>-->
+           
         </helix:HelixViewport3D>
     
         <!-- Main Navigation Content -->
@@ -155,15 +114,18 @@
               Panel.ZIndex="200">
             <StackPanel Grid.ColumnSpan="2" Margin="4">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="ISO Extracted / Found : " Foreground="{StaticResource MainForeground}"/>
+                    <TextBlock Text="{DynamicResource LOC_ISO_Extracted_Label}" Foreground="{StaticResource MainForeground}"/>
                     <CheckBox IsEnabled="False" IsChecked="{Binding ChromeHoundsExtracted}" Foreground="{StaticResource MainForeground}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Install Complete : " Foreground="{StaticResource MainForeground}"/>
+                    <TextBlock Text="{DynamicResource LOC_Install_Complete_Label}" Foreground="{StaticResource MainForeground}"/>
                     <CheckBox IsEnabled="False" IsChecked="{Binding IsInstallComplete}" Foreground="{StaticResource MainForeground}"/>
                 </StackPanel>
 
-                <TextBlock Text="{Binding XeniaPath, StringFormat=Xenia Path : {0}}" Foreground="{StaticResource MainForeground}"/>
+                <TextBlock Foreground="{StaticResource MainForeground}">
+                    <Run Text="{DynamicResource LOC_Xenia_Path_Label}" />
+                    <Run Text="{Binding XeniaPath}" />
+                </TextBlock>
 
             </StackPanel>
         </Grid>
@@ -181,7 +143,7 @@
               Background="#80000000"
               Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
               Panel.ZIndex="1000">
-            <TextBlock Text="Loading..."
+            <TextBlock Text="{DynamicResource LOC_Loading_Message}"
                        Foreground="White"
                        FontSize="36"
                        FontWeight="Bold"

@@ -1,5 +1,4 @@
-﻿using System.IO;
-using CombasLauncherApp.Services;
+﻿using CombasLauncherApp.Services;
 using CombasLauncherApp.Services.Implementations;
 using CombasLauncherApp.Services.Interfaces;
 using CombasLauncherApp.UI.Pages.DeveloperPages;
@@ -10,8 +9,12 @@ using CommunityToolkit.Mvvm.Input;
 using HelixToolkit.Wpf;
 using Microsoft.VisualBasic.ApplicationServices;
 using Microsoft.VisualBasic.Logging;
+using System.IO;
+using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using static SoulsFormats.MQB;
+using Application = System.Windows.Application;
 
 
 namespace CombasLauncherApp.UI
@@ -119,10 +122,32 @@ namespace CombasLauncherApp.UI
             IsStatusOpen = !IsStatusOpen;
         }
 
+       
         private void LoadObjModel(string path)
         {
             var importer = new ModelImporter();
-            SceneModel = importer.Load(path);
+
+            var model = importer.Load(path);
+
+            // Set all GeometryModel3D materials to gray
+            SetMaterial(model, new DiffuseMaterial(new SolidColorBrush(Colors.Gray)));
+            SceneModel = model;
+        }
+
+        private void SetMaterial(Model3D model, Material material)
+        {
+            if (model is GeometryModel3D geometryModel)
+            {
+                geometryModel.Material = material;
+                geometryModel.BackMaterial = material;
+            }
+            else if (model is Model3DGroup group)
+            {
+                foreach (var child in group.Children)
+                {
+                    SetMaterial(child, material);
+                }
+            }
         }
     }
 

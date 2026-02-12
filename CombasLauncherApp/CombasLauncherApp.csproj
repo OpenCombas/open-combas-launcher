@@ -30,6 +30,8 @@
   <ItemGroup>
     <None Remove="ParamDefinitions\MenuMapInfo.xml" />
     <None Remove="tools\extract-xiso.exe" />
+    <None Remove="UI\Resources\Localisation\Flags\Japanese_Flag.png" />
+    <None Remove="UI\Resources\Localisation\Flags\UK_Flag.png" />
     <None Remove="UI\Resources\Logo.obj" />
     <None Remove="UI\Resources\OpenCOMBAS.ico" />
   </ItemGroup>
@@ -44,10 +46,19 @@
     <Content Include="tools\README.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="UI\Resources\Localisation\Flags\Japanese_Flag.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="UI\Resources\Logo.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="UI\Resources\OpenCOMBAS.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="UI\Resources\Localisation\Flags\UK_Flag.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

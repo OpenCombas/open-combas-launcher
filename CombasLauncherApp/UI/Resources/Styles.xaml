@@ -71,16 +71,15 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
-                                <ColumnDefinition />
-                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <ToggleButton x:Name="ToggleButton"
-                                          Grid.Column="2"
+                                          Grid.Column="1"
                                           Focusable="false"
                                           IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                                           ClickMode="Press"
                                           Background="{StaticResource ButtonBrush}"
-                                          BorderThickness="0" Width="30" Padding="4">
+                                          BorderThickness="1,0,0,0" Width="30" Padding="4">
                                 <Viewbox>
                                     <Path x:Name="Arrow"
                                           Fill="Black"

@@ -8,11 +8,33 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid VerticalAlignment="Top" HorizontalAlignment="Left" Background="{StaticResource OverlayBackground}">
         <StackPanel Grid.Column="0" Width="200" HorizontalAlignment="Left" Margin="4">
-            <Button Content="Import Save File" Command="{Binding ImportSaveDataCommand}" Padding="4" Margin="4"/>
-            <Button Content="Import Hound Pre-Builds" Command="{Binding ImportHoundPreBuildsCommand}" Padding="4" Margin="4"/>
-            <Button Content="Import Hound Builds" Command="{Binding ImportHoundBuildsCommand}" Padding="4" Margin="4"/>
-            <Button Content="Show Logs" Command="{Binding ShowLogsCommand}" Padding="4" Margin="4"/>
-            <Button Content="Re-Run Initial Setup" Command="{Binding RerunInitialSetupCommand}" Padding="4" Margin="4"/>
+            <!-- Language Selection ComboBox -->
+            <ComboBox x:Name="LanguageComboBox"
+                      SelectedValuePath="Tag"
+                      SelectedValue="{Binding SelectedLanguageKey, Mode=TwoWay}"
+                      Margin="4"
+                      Padding="4">
+                <ComboBoxItem Tag="English">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Width="30" Source="\UI\Resources\Localisation\Flags\UK_Flag.png" Margin="0,4"/>
+                        <TextBlock VerticalAlignment="Center" Text="{DynamicResource LOC_Language_English}" Margin="4,0,0,0" />
+                    </StackPanel>
+                </ComboBoxItem>
+                <ComboBoxItem Tag="Japanese">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Width="30" Source="\UI\Resources\Localisation\Flags\Japanese_Flag.png" Margin="0,4"/>
+                        <TextBlock VerticalAlignment="Center" Text="{DynamicResource LOC_Language_Japanese}" Margin="4,0,0,0"/>
+                    </StackPanel>
+                </ComboBoxItem>
+            </ComboBox>
+
+            <Button Content="{DynamicResource LOC_Import_Save_File}" Command="{Binding ImportSaveDataCommand}" Padding="4" Margin="4"/>
+            <Button Content="{DynamicResource LOC_Import_Hound_Pre_Builds}" Command="{Binding ImportHoundPreBuildsCommand}" Padding="4" Margin="4"/>
+            <Button Content="{DynamicResource LOC_Import_Hound_Builds}" Command="{Binding ImportHoundBuildsCommand}" Padding="4" Margin="4"/>
+            <Button Content="{DynamicResource LOC_Show_Logs}" Command="{Binding ShowLogsCommand}" Padding="4" Margin="4"/>
+            <Button Content="{DynamicResource LOC_Re_Run_Initial_Setup}" Command="{Binding RerunInitialSetupCommand}" Padding="4" Margin="4"/>
+            
         </StackPanel>
+        
     </Grid>
 </UserControl>

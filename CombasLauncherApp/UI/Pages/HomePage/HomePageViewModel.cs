@@ -46,11 +46,17 @@ namespace CombasLauncherApp.UI.Pages.HomePage
 
         [ObservableProperty] 
         private KeyValuePair<string, string>? _selectedMapPack;
-
         partial void OnSelectedMapPackChanged(KeyValuePair<string, string>? value)
         {
+            if (_selectedMapPackSuppressed)
+            {
+                return;
+            }
+
             _ = SwitchMapPackAsync(value?.Key, value?.Value);
         }
+
+        private readonly bool _selectedMapPackSuppressed;
 
         public HomePageViewModel()
         {
@@ -67,6 +73,8 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             {
                 SelectedMapPack = _mapPackList.FirstOrDefault();
             }
+
+            _selectedMapPackSuppressed = false;
         }
 
         [RelayCommand]
