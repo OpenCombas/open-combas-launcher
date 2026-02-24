@@ -20,6 +20,17 @@ namespace CombasLauncherApp.UI.Pages.SettingsPage
 
         private static readonly IXeniaService _xeniaService = ServiceProvider.GetService<IXeniaService>();
 
+
+        [ObservableProperty]
+        private string _selectedLanguageKey = AppService.Instance.SelectedLanguageKey;
+
+        partial void OnSelectedLanguageKeyChanged(string value)
+        {
+            ChangeLanguage(value);
+            AppService.Instance.SelectedLanguageKey = value; 
+            _loggingService.LogInformation($"Language changed to {value}");
+        }
+
        
         [RelayCommand]
         private void ImportSaveData()
@@ -190,18 +201,7 @@ namespace CombasLauncherApp.UI.Pages.SettingsPage
                 _messageBoxService.ShowError("Failed to install custom HOUNDs.");
             }
         }
-
-        [ObservableProperty]
-        private string _selectedLanguageKey = AppService.Instance.SelectedLanguageKey;
-
-        partial void OnSelectedLanguageKeyChanged(string value)
-        {
-            ChangeLanguage(value);
-            AppService.Instance.SelectedLanguageKey = value; 
-            _loggingService.LogInformation($"Language changed to {value}");
-        }
-
-
+        
         private void ChangeLanguage(string languageKey)
         {
             // Backend stays in English, only UI changes

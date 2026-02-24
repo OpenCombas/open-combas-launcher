@@ -32,7 +32,7 @@
     <None Remove="tools\extract-xiso.exe" />
     <None Remove="UI\Resources\Localisation\Flags\Japanese_Flag.png" />
     <None Remove="UI\Resources\Localisation\Flags\UK_Flag.png" />
-    <None Remove="UI\Resources\Logo.obj" />
+    <None Remove="UI\Resources\Logo.mp4" />
     <None Remove="UI\Resources\OpenCOMBAS.ico" />
   </ItemGroup>
 
@@ -49,7 +49,7 @@
     <Content Include="UI\Resources\Localisation\Flags\Japanese_Flag.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="UI\Resources\Logo.obj">
+    <Content Include="UI\Resources\Logo.mp4">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="UI\Resources\OpenCOMBAS.ico" />
@@ -63,8 +63,6 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="HelixToolkit" Version="3.1.2" />
-    <PackageReference Include="HelixToolkit.Wpf" Version="3.1.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
   </ItemGroup>
 

@@ -8,6 +8,7 @@
         xmlns:developerPages="clr-namespace:CombasLauncherApp.UI.Pages.DeveloperPages"
         xmlns:settingsPage="clr-namespace:CombasLauncherApp.UI.Pages.SettingsPage"
         xmlns:helix="http://helix-toolkit.org/wpf"
+        xmlns:helixSharp="http://helix-toolkit.org/wpf/SharpDX"
         mc:Ignorable="d"
         Title="{Binding Version}" Height="500" Width="700" ResizeMode="NoResize" Background="{StaticResource MainBackground}" d:DataContext="{d:DesignInstance ui:MainWindowViewModel}">
     
@@ -16,15 +17,6 @@
         <DataTemplate DataType="{x:Type homePage:HomePageViewModel}">
             <homePage:HomePage />
         </DataTemplate>
-        <Storyboard x:Key="ShieldSpinStoryboard" RepeatBehavior="Forever">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="ShieldRotation"
-                                           Storyboard.TargetProperty="Angle">
-                <LinearDoubleKeyFrame Value="30" KeyTime="0:0:8"/>
-                <LinearDoubleKeyFrame Value="-30" KeyTime="0:0:24"/>
-                <LinearDoubleKeyFrame Value="0" KeyTime="0:0:32"/>
-            </DoubleAnimationUsingKeyFrames>
-        </Storyboard>
-      
     </Window.Resources>
     
     
@@ -35,6 +27,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        
 
         <!-- Header Bar -->
         <Grid Grid.Row="0" Background="{StaticResource OverlayBackground}">
@@ -44,52 +37,10 @@
                 <Button Content="{DynamicResource LOC_Settings}" Padding="4" Command="{Binding OpenSettingsPageCommand}" IsEnabled="{Binding IsInstallComplete}" Margin="4,0,0,0"/>
             </StackPanel>
         </Grid>
-        <helix:HelixViewport3D  Grid.Row="1" ShowViewCube="False" IsEnabled="False">
-            <helix:HelixViewport3D.Camera>
-                <PerspectiveCamera Position="0,34,0" LookDirection="0,-1,0" UpDirection="0,0,-1" FieldOfView="60" />
-            </helix:HelixViewport3D.Camera>
-            <ModelVisual3D>
-                <ModelVisual3D.Content>
-                    <DirectionalLight Color="White" Direction="0,-1,1"/>
-                </ModelVisual3D.Content>
-            </ModelVisual3D> 
-            <!-- Debug Gridlines -->
-            <!--<helix:GridLinesVisual3D Center="0,0,0"
-                                     Length="50"
-                                     Width="50"
-                                     MinorDistance="1"
-                                     MajorDistance="5"
-                                     Thickness="0.1"
-                                     Fill="Black">
-                <helix:GridLinesVisual3D.Transform>
-                    <RotateTransform3D>
-                        <RotateTransform3D.Rotation>
-                            <AxisAngleRotation3D Axis="1,0,0" Angle="90"/>
-                        </RotateTransform3D.Rotation>
-                    </RotateTransform3D>
-                </helix:GridLinesVisual3D.Transform>
-            </helix:GridLinesVisual3D>-->
-           
-            <ModelVisual3D Content="{Binding SceneModel}">
-                <ModelVisual3D.Transform>
-                    <Transform3DGroup>
-                        <TranslateTransform3D OffsetX="-25.5" OffsetY="0" OffsetZ="38"/>
-                        <RotateTransform3D>
-                            <RotateTransform3D.Rotation >
-                                <AxisAngleRotation3D x:Name="ShieldRotation" Axis="0,0,1" Angle="0"/>
-                            </RotateTransform3D.Rotation>
-                        </RotateTransform3D>
-                    </Transform3DGroup>
-                </ModelVisual3D.Transform>
-            </ModelVisual3D>
-            <helix:HelixViewport3D.Triggers>
-                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-                    <BeginStoryboard Storyboard="{StaticResource ShieldSpinStoryboard}" />
-                </EventTrigger>
-            </helix:HelixViewport3D.Triggers>
-           
-        </helix:HelixViewport3D>
-    
+
+        <!-- Logo Animation Rectangle-->
+        <Rectangle Grid.Row="1" Panel.ZIndex="0" Fill="{Binding VideoBrush}" />
+
         <!-- Main Navigation Content -->
         <ContentPresenter Grid.Row="2" Content="{Binding CurrentPage}"/> 
 

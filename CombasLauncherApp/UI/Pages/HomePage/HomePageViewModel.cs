@@ -34,7 +34,8 @@ namespace CombasLauncherApp.UI.Pages.HomePage
         private bool _isXeniaFound;
 
 
-        [ObservableProperty] private Dictionary<string, string> _mapPackList = new()
+        [ObservableProperty]
+        private Dictionary<string, string> _mapPackList = new()
         {
             { "Default", "n/a" },
             { "API 1", "api1.opencombas.org" },
@@ -43,7 +44,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             { "API 4", "api4.opencombas.org" }
         };
 
-
+       
         [ObservableProperty] 
         private KeyValuePair<string, string>? _selectedMapPack;
         partial void OnSelectedMapPackChanged(KeyValuePair<string, string>? value)
@@ -57,6 +58,24 @@ namespace CombasLauncherApp.UI.Pages.HomePage
         }
 
         private readonly bool _selectedMapPackSuppressed;
+        
+        [ObservableProperty] 
+        private Dictionary<string, string> _buildPackList;
+
+        [ObservableProperty]
+        private KeyValuePair<string, string>? _selectedBuildPack;
+
+        partial void OnSelectedBuildPackChanged(KeyValuePair<string,string>? value)
+        {
+            if (_selectedBuildPackSuppressed)
+            {
+                return;
+            }
+
+            _ = SwitchBuildPackAsync(value?.Key, value?.Value);
+        }
+
+        private readonly bool _selectedBuildPackSuppressed;
 
         public HomePageViewModel()
         {
@@ -75,6 +94,7 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             }
 
             _selectedMapPackSuppressed = false;
+            _selectedBuildPackSuppressed = false;
         }
 
         [RelayCommand]
@@ -256,7 +276,10 @@ namespace CombasLauncherApp.UI.Pages.HomePage
             }
         }
 
+        private async Task SwitchBuildPackAsync(string? buildPackName, string? buildPackPath)
+        {
 
+        }
 
         private async Task<ImportChromeHoundsIsoResult> ImportChromeHoundsIso()
         {

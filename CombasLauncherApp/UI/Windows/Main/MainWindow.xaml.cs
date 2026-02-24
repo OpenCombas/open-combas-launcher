@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Media;
 
 namespace CombasLauncherApp.UI
 {
@@ -12,5 +13,6 @@ namespace CombasLauncherApp.UI
             InitializeComponent();
         }
         
+      
     }
 }

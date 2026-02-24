@@ -65,7 +65,15 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
-           
+            <TabItem Header="Testing">
+                <StackPanel Background="Gray">
+                    <Button Content="TestImage" Command="{Binding TakeTestImageCommand}"/>
+                    <Image Source="{Binding TestImage}" Height="200"/>
+                    <Slider Minimum="20" Maximum="200" Value="{Binding ImageWidth}"/>
+                    <Slider Minimum="20" Maximum="200" Value="{Binding ImageHeight}"/>
+                    <Slider Minimum="0" Maximum="5" Value="{Binding DebugLayer}"/>
+                </StackPanel>
+            </TabItem>           
          
         </TabControl>
      

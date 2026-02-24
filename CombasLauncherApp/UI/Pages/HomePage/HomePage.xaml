@@ -18,7 +18,10 @@
      
         <Grid Grid.Column="0" Grid.Row="2" Background="{StaticResource OverlayBackground}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-           
+                <ComboBox ItemsSource="{Binding BuildPackList}" 
+                          SelectedItem="{Binding SelectedBuildPack, Mode=TwoWay}"
+                          DisplayMemberPath="Key" VerticalContentAlignment="Center" FontSize="20" Margin="4">
+                </ComboBox>
                 <ComboBox ItemsSource="{Binding MapPackList}" 
                           SelectedItem="{Binding SelectedMapPack, Mode=TwoWay}"
                           DisplayMemberPath="Key" VerticalContentAlignment="Center" FontSize="20" Margin="4" >
