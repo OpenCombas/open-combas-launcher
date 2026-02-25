@@ -10,7 +10,7 @@
         xmlns:helix="http://helix-toolkit.org/wpf"
         xmlns:helixSharp="http://helix-toolkit.org/wpf/SharpDX"
         mc:Ignorable="d"
-        Title="{Binding Version}" Height="500" Width="700" ResizeMode="NoResize" Background="{StaticResource MainBackground}" d:DataContext="{d:DesignInstance ui:MainWindowViewModel}">
+        Title="{Binding Version}" Height="500" Width="700"  Background="{StaticResource MainBackground}" d:DataContext="{d:DesignInstance ui:MainWindowViewModel}">
     
     <!-- Window Resources, primarily navigation templates for the content presenter -->
     <Window.Resources>

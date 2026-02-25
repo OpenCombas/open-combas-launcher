@@ -208,7 +208,7 @@ namespace CombasLauncherApp.UI.Pages.DeveloperPages
         private void TakeTestImage()
         {
             TestImage = GetRawImageFromFile(
-                @"C:\Users\HC-Gamer\AppData\Local\OpenCombasLauncher\xenia\content\B13EBABEBABEBABE\534507D4\00000001\260219152401TESTNAME3.mcd\fromsoftware.txt",
+                @"C:\Users\HC-Gamer\AppData\Local\OpenCombasLauncher\xenia\content\B13EBABEBABEBABE\534507D4\00000001\260225200137TESTNAME3.mcd\fromsoftware.txt",
                 offset: 9956,
                 width: 256,
                 height: 256
@@ -286,25 +286,30 @@ namespace CombasLauncherApp.UI.Pages.DeveloperPages
             // | 0 | 4 | 1 | 5 | 2 | 6 | 3 | 7 |
             // +---+---+---+---+---+---+---+---+
             //
+            // & it alternates to this pattern WHY!!!!
+            //
+            // +---+---+---+---+---+---+---+---+
+            // | 2 | 6 | 3 | 7 | 0 | 4 | 1 | 5 |
+            // +---+---+---+---+---+---+---+---+
             //
             // Each one of these blocks is split into 8 Dxt1 blocks of 8 bytes. 
             //
             // +----+----+----+----+
-            // | 0  | 1  | 2  | 3  |
+            // | 0  | 1  | 4  | 5  |
             // +----+----+----+----+
-            // | 4  | 5  | 6  | 7  |
+            // | 2  | 3  | 6  | 7  |
             // +----+----+----+----+
             //
             //
-            // Each DXT1 block corresponds to a 4x4 pixel area in the final image, with the following pixel order within the block: TODO Investigate order
+            // Each DXT1 block corresponds to a 4x4 pixel area in the final image, with the following pixel order within the block: 
             // +----+----+----+----+
-            // | 0  | 1  | 2  | 3  |
+            // | 7  | 6  | 5  | 4  |
             // +----+----+----+----+
-            // | 4  | 5  | 6  | 7  |
+            // | 3  | 2  | 1  | 0  |
             // +----+----+----+----+
-            // | 8  | 9  | 10 | 11 |
+            // | 15 | 14 | 13 | 12 |
             // +----+----+----+----+
-            // | 12 | 13 | 14 | 15 |
+            // | 11 | 10 | 9  | 8  |
             // +----+----+----+----+
 
 
@@ -356,13 +361,17 @@ namespace CombasLauncherApp.UI.Pages.DeveloperPages
                     var groupX = (localX1 % sectorSizeX) / groupWidth;
                     var groupY = (localY1 % sectorSizeY) / groupHeight;
                     var stage4 = groupY * groupsPerRow + groupX; // 0..7 for 8 groups
-                    var stage4Order = new[] { 0, 4, 1, 5, 2, 6, 3, 7 }[stage4 % 8]; // for debug overlay
+                    // Alternating block order every 2 stage2
+                    int[] patternA = [0, 4, 1, 5, 2, 6, 3, 7];
+                    int[] patternB = [2, 6, 3, 7, 0, 4, 1, 5];
+                    var usePatternB = (stage2 % 2) == 1;
+                    var stage4Order = usePatternB ? patternB[stage4 % 8] : patternA[stage4 % 8];
 
                     // Stage 5: DXT1 block in 4x2 group
                     var localXInGroup = (localX1 % sectorSizeX) % groupWidth; // 0..3
                     var localYInGroup = (localY1 % sectorSizeY) % groupHeight; // 0..1
                     var stage5 = localYInGroup * groupWidth + localXInGroup; // 0..7
-                    var stage5Order = new[] { 0, 1, 2, 3, 4, 5, 6, 7 }[stage5];
+                    var stage5Order = new[] { 0, 1, 4, 5, 2, 3, 6, 7 }[stage5];
 
                     // Nested offset calculation
                     var sectorOffset = stage1 * (sectorSizeX * sectorSizeY);
@@ -370,11 +379,8 @@ namespace CombasLauncherApp.UI.Pages.DeveloperPages
                     var finerRowOffset = stage3 * (sectorSizeX * rowsPerStage3);
                     var blockGroupOffset = stage4Order * 8;
 
-                    var swizzleIndex = sectorOffset + rowOffset + finerRowOffset + blockGroupOffset + stage5;
+                    var swizzleIndex = sectorOffset + rowOffset + finerRowOffset + blockGroupOffset + stage5Order;
 
-                    //TODO: Verify that swizzleIndex corresponds to the expected block in the DXT1 data, and adjust calculations if necessary based on testing and visualization.
-                    // Black out sectors/rows/groups based on debug stage, or visualize swizzle stages
-                    // Initial Looks look like order is correct but image data is still borked so i can only assume that the DXT1 blocks themselves are not being read correctly.
 
                     // --- Visualization ---
                     byte[] color;
@@ -419,7 +425,7 @@ namespace CombasLauncherApp.UI.Pages.DeveloperPages
                             };
                             break;
                         case 4:
-                            if (stage1 > 0 || stage2 > 0 || stage3 > 0)
+                            if (stage1 > 0 || stage2 > 4 || stage3 > 0)
                             {
                                 goto case 99;
                             }
@@ -511,10 +517,12 @@ namespace CombasLauncherApp.UI.Pages.DeveloperPages
         }
 
         // DXT1 block decompression for a single 4x4 block
+        private static readonly int[] _dxt1PixelOrder = [4,5,6,7, 0,1,2,3, 12,13,14,15, 8,9,10,11];
+
         private void DecompressDxt1Block(byte[] data, int index, int x, int y, int width, int height, byte[] output)
         {
-            var color0 = (ushort)(data[index + 0] | (data[index + 1] << 8));
-            var color1 = (ushort)(data[index + 2] | (data[index + 3] << 8));
+            var color0 = (ushort)(data[index + 1] | (data[index + 0] << 8));
+            var color1 = (ushort)(data[index + 3] | (data[index + 2] << 8));
             var bits = BitConverter.ToUInt32(data, index + 4);
 
             var colors = new uint[4];
@@ -534,27 +542,21 @@ namespace CombasLauncherApp.UI.Pages.DeveloperPages
                 colors[3] = 0x00000000; // Transparent
             }
 
-            for (var py = 0; py < 4; py++)
+            for (var i = 0; i < 16; i++)
             {
-                for (var px = 0; px < 4; px++)
+                var code = (int)((bits >> (2 * _dxt1PixelOrder[i])) & 0x03);
+                var px = i % 4;
+                var py = i / 4;
+                var dstX = x + px;
+                var dstY = y + py;
+                if (dstX < width && dstY < height)
                 {
-                    // Try standard DXT1 order:
-                    var code = (int)((bits >> (2 * (py * 4 + px))) & 0x03);
-
-                    // If colors are misplaced, try column-major order:
-                    // int code = (int)((bits >> (2 * (px * 4 + py))) & 0x03);
-
-                    var dstX = x + px;
-                    var dstY = y + py;
-                    if (dstX < width && dstY < height)
-                    {
-                        var dstOffset = (dstY * width + dstX) * 4;
-                        var color = colors[code];
-                        output[dstOffset + 0] = (byte)(color & 0xFF);         // B
-                        output[dstOffset + 1] = (byte)((color >> 8) & 0xFF);  // G
-                        output[dstOffset + 2] = (byte)((color >> 16) & 0xFF); // R
-                        output[dstOffset + 3] = (byte)((color >> 24) & 0xFF); // A
-                    }
+                    var dstOffset = (dstY * width + dstX) * 4;
+                    var color = colors[code];
+                    output[dstOffset + 0] = (byte)(color & 0xFF);         // B
+                    output[dstOffset + 1] = (byte)((color >> 8) & 0xFF);  // G
+                    output[dstOffset + 2] = (byte)((color >> 16) & 0xFF); // R
+                    output[dstOffset + 3] = (byte)((color >> 24) & 0xFF); // A
                 }
             }
         }
@@ -571,7 +573,8 @@ namespace CombasLauncherApp.UI.Pages.DeveloperPages
             g = (g << 2) | (g >> 4);
             b = (b << 3) | (b >> 2);
 
-            return (uint)((0xFF << 24) | (r << 16) | (g << 8) | b);
+            // Pack as BGRA (Blue, Green, Red, Alpha)
+            return (uint)((b) | (g << 8) | (r << 16) | (0xFF << 24));
         }
 
         private uint InterpolateBgra32(uint c0, uint c1, int w0, int w1)
@@ -579,7 +582,7 @@ namespace CombasLauncherApp.UI.Pages.DeveloperPages
             var b = ((int)(c0 & 0xFF) * w0 + (int)(c1 & 0xFF) * w1) / (w0 + w1);
             var g = (((int)(c0 >> 8) & 0xFF) * w0 + ((int)(c1 >> 8) & 0xFF) * w1) / (w0 + w1);
             var r = (((int)(c0 >> 16) & 0xFF) * w0 + ((int)(c1 >> 16) & 0xFF) * w1) / (w0 + w1);
-            return (uint)((0xFF << 24) | (r << 16) | (g << 8) | b);
+            return (uint)((b) | (g << 8) | (r << 16) | (0xFF << 24));
         }
 
     }
