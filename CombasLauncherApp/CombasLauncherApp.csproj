@@ -33,6 +33,7 @@
     <None Remove="UI\Resources\Localisation\Flags\Japanese_Flag.png" />
     <None Remove="UI\Resources\Localisation\Flags\UK_Flag.png" />
     <None Remove="UI\Resources\Logo.mp4" />
+    <None Remove="UI\Resources\OopsImage.png" />
     <None Remove="UI\Resources\OpenCOMBAS.ico" />
   </ItemGroup>
 
@@ -50,6 +51,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="UI\Resources\Logo.mp4">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="UI\Resources\OopsImage.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="UI\Resources\OpenCOMBAS.ico" />

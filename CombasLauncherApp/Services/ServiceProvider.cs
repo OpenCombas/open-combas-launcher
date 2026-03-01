@@ -20,6 +20,7 @@ public static class ServiceProvider
         services.AddSingleton<IXeniaService, XeniaService>();
         services.AddSingleton<ITailScaleService, TailScaleService>();
         services.AddSingleton<INavigationService, NavigationService>();
+        services.AddSingleton<IHoundBuildService, HoundBuildService>();
         //services.AddSingleton<IUpdateService, UpdateService>();
 
         _serviceProvider = services.BuildServiceProvider();

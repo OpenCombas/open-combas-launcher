@@ -9,7 +9,7 @@
     <system:String x:Key="LOC_Language_Japanese">日本語</system:String>
 
 
-
+    <system:String x:Key="LOC_Build_Manager">ビルドマネージャー</system:String>
     <system:String x:Key="LOC_Status">状態</system:String>
     <system:String x:Key="LOC_Developer_Menu">開発者メニュー</system:String>
     <system:String x:Key="LOC_Settings">設定</system:String>
@@ -39,10 +39,12 @@
     <system:String x:Key="LOC_Show_Logs">ログを表示</system:String>
     <system:String x:Key="LOC_Re_Run_Initial_Setup">初期セットアップを再実行</system:String>
 
+    <system:String x:Key="Template">テンプレート</system:String>
 
+    <system:String x:Key="LOC_Name">名前</system:String>
+    <system:String x:Key="LOC_Date">日付</system:String>
+    <system:String x:Key="LOC_Create">作成する</system:String>
+    <system:String x:Key="LOC_Delete">消去</system:String>
 
-
-
-    <system:String x:Key="Template">Template</system:String>
 
 </ResourceDictionary>

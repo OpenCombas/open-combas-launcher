@@ -1,6 +1,9 @@
 ﻿using CombasLauncherApp.Services.Interfaces;
 using System.IO;
 using System.Text.Json;
+using System.Windows;
+using static SoulsFormats.GRASS;
+using Application = System.Windows.Application;
 
 namespace CombasLauncherApp.Services.Implementations;
 
@@ -46,8 +49,13 @@ public class AppService
 
     public static readonly string HoundPreBuildsDir = Path.Combine(BaseDir, "builds");
 
-    public static readonly string HoundBuildsDir = Path.Combine(LocalAppData, "builds");
+    public static readonly string HoundBuildsDir = Path.Combine(LocalAppData, "PlayerBuilds");
 
+    public static readonly string HoundBuildCollectionDir = Path.Combine(HoundBuildsDir, "HoundBuildCollections");
+
+    public static readonly string HoundArchivedBuildsDir = Path.Combine(HoundBuildsDir, "Archive");
+
+    public static readonly string HoundCurrentBuildsDir = Path.Combine(XeniaContentDir, "B13EBABEBABEBABE", "534507D4", "00000001"); //TODO investigate if this is going to work with more than one xbox live profile
 
     public string CurrentVersion => System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
 
@@ -117,6 +125,24 @@ public class AppService
 
     public string SelectedLanguageKey { get; set; } = "English"; // Default to English, can be updated based on user selection and persisted
 
+    public void ChangeLanguage(string languageKey)
+    {
+        // Backend stays in English, only UI changes
+        var dictPath = $"UI/Resources/Localisation/{languageKey}.xaml";
+        var dict = new ResourceDictionary { Source = new Uri(dictPath, UriKind.Relative) };
+
+        var oldDict = Application.Current.Resources.MergedDictionaries
+            .FirstOrDefault(d => d.Source != null && d.Source.OriginalString.Contains("Localisation"));
+
+        if (oldDict != null)
+        {
+            Application.Current.Resources.MergedDictionaries.Remove(oldDict);
+        }
+
+        Application.Current.Resources.MergedDictionaries.Add(dict);
+        SelectedLanguageKey = languageKey;
+        _loggingService.LogInformation($"Language changed to {languageKey}");
+    }
 
     // Data model for persistent data
     private class PersistentAppData
@@ -148,7 +174,8 @@ public class AppService
                 _persistentData = JsonSerializer.Deserialize<PersistentAppData>(json) ?? new PersistentAppData();
                 IsInstallComplete = _persistentData.IsInstallComplete;
                 CurrentMapPack = _persistentData.CurrentMapPack;
-                SelectedLanguageKey = _persistentData.SelectedLanguageKey ?? "English"; // Default to English if not set
+
+                ChangeLanguage(_persistentData.SelectedLanguageKey ?? "English");// Default to English if not set
             }
             else
             {

@@ -9,6 +9,7 @@
         xmlns:settingsPage="clr-namespace:CombasLauncherApp.UI.Pages.SettingsPage"
         xmlns:helix="http://helix-toolkit.org/wpf"
         xmlns:helixSharp="http://helix-toolkit.org/wpf/SharpDX"
+        xmlns:buildManagerPage="clr-namespace:CombasLauncherApp.UI.Pages.BuildManagerPage"
         mc:Ignorable="d"
         Title="{Binding Version}" Height="500" Width="700"  Background="{StaticResource MainBackground}" d:DataContext="{d:DesignInstance ui:MainWindowViewModel}">
     
@@ -32,6 +33,8 @@
         <!-- Header Bar -->
         <Grid Grid.Row="0" Background="{StaticResource OverlayBackground}">
             <StackPanel Orientation="Horizontal" Margin="4" HorizontalAlignment="Right">
+
+                <Button Content="{DynamicResource LOC_Build_Manager}" Padding="4" Command="{Binding OpenBuildManagerPageCommand}" Margin="4,0,0,0"/>
                 <Button Content="{DynamicResource LOC_Status}" Padding="4" Command="{Binding OpenStatusPageCommand}" Margin="4,0,0,0"/>
                 <Button Content="{DynamicResource LOC_Developer_Menu}" Padding="4" Command="{Binding OpenDeveloperMenuCommand}" Visibility="{Binding IsDeveloperAllowed, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="4,0,0,0"/>
                 <Button Content="{DynamicResource LOC_Settings}" Padding="4" Command="{Binding OpenSettingsPageCommand}" IsEnabled="{Binding IsInstallComplete}" Margin="4,0,0,0"/>
@@ -39,7 +42,7 @@
         </Grid>
 
         <!-- Logo Animation Rectangle-->
-        <Rectangle Grid.Row="1" Panel.ZIndex="0" Fill="{Binding VideoBrush}" />
+        <Rectangle Grid.Row="1" Panel.ZIndex="0" Fill="{Binding LogoBrush}" />
 
         <!-- Main Navigation Content -->
         <ContentPresenter Grid.Row="2" Content="{Binding CurrentPage}"/> 
@@ -79,6 +82,14 @@
                 </TextBlock>
 
             </StackPanel>
+        </Grid>
+
+
+        <!-- Build Manager Overlay -->
+        <Grid Grid.Row="1" x:Name="BuildManagerOverlay" Background="{StaticResource MainBackground}"
+              Visibility="{Binding IsBuildPageOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
+              Panel.ZIndex="200">
+            <buildManagerPage:BuildManagerPage DataContext="{Binding BuildManagerPageViewModel}"/> 
         </Grid>
 
 

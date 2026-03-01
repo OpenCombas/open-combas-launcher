@@ -26,9 +26,8 @@ namespace CombasLauncherApp.UI.Pages.SettingsPage
 
         partial void OnSelectedLanguageKeyChanged(string value)
         {
-            ChangeLanguage(value);
-            AppService.Instance.SelectedLanguageKey = value; 
-            _loggingService.LogInformation($"Language changed to {value}");
+            AppService.Instance.ChangeLanguage(value);
+            
         }
 
        
@@ -202,19 +201,6 @@ namespace CombasLauncherApp.UI.Pages.SettingsPage
             }
         }
         
-        private void ChangeLanguage(string languageKey)
-        {
-            // Backend stays in English, only UI changes
-            var dictPath = $"UI/Resources/Localisation/{languageKey}.xaml";
-            var dict = new ResourceDictionary { Source = new Uri(dictPath, UriKind.Relative) };
-
-            var oldDict = Application.Current.Resources.MergedDictionaries
-                .FirstOrDefault(d => d.Source != null && d.Source.OriginalString.Contains("Localisation"));
-
-            if (oldDict != null)
-                Application.Current.Resources.MergedDictionaries.Remove(oldDict);
-
-            Application.Current.Resources.MergedDictionaries.Add(dict);
-        }
+       
     }
 }

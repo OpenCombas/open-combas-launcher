@@ -7,10 +7,7 @@
 
     <system:String x:Key="LOC_Language_English">English</system:String>
 
-
     <system:String x:Key="LOC_Language_Japanese">Japanese</system:String>
-
-
 
     <system:String x:Key="LOC_Status">Status</system:String>
     <system:String x:Key="LOC_Developer_Menu">Developer Menu</system:String>
@@ -28,12 +25,8 @@
     <system:String x:Key="LOC_Install_Complete_Label">Install Complete : </system:String>
     <system:String x:Key="LOC_Xenia_Path_Label">Xenia Path:</system:String>
 
-
-
     <system:String x:Key="LOC_Enter_Tailscale_Auth_Key_Title">Enter Auth Key</system:String>
     <system:String x:Key="LOC_Enter_Tailscale_Auth_Key_Message">Enter your Tailscale Auth Key:</system:String>
-
-
 
     <system:String x:Key="LOC_Import_Save_File">Import Save File</system:String>
     <system:String x:Key="LOC_Import_Hound_Pre_Builds">Import Hound Pre-Builds</system:String>
@@ -41,10 +34,17 @@
     <system:String x:Key="LOC_Show_Logs">Show Logs</system:String>
     <system:String x:Key="LOC_Re_Run_Initial_Setup">Re-Run Initial Setup</system:String>
 
-
-
-
-
     <system:String x:Key="Template">Template</system:String>
 
+
+    <system:String x:Key="LOC_Build_Manager">Build Manager</system:String>
+    <system:String x:Key="LOC_Name">Name</system:String>
+    <system:String x:Key="LOC_Date">Date</system:String>
+    <system:String x:Key="LOC_Create">Create</system:String>
+    <system:String x:Key="LOC_Delete">Delete</system:String>
+
+
+    <!-- To localise-->
+    <system:String x:Key="LOC_Delete_Build_Collection_Warning">Are you sure you want to delete this build collection, all builds within it will be moved to the archive?</system:String>
+    <system:String x:Key="LOC_Warning">Warning</system:String>
 </ResourceDictionary>

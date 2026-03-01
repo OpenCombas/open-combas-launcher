@@ -8,6 +8,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using CombasLauncherApp.Enums;
+using CombasLauncherApp.UI.Pages.BuildManagerPage;
 
 
 namespace CombasLauncherApp.UI
@@ -17,10 +19,9 @@ namespace CombasLauncherApp.UI
         private readonly IXeniaService _xeniaService = ServiceProvider.GetService<IXeniaService>();
         
         private readonly MediaPlayer _mediaPlayer;
-        private readonly DrawingBrush _videoBrush;
 
-        public DrawingBrush VideoBrush => _videoBrush;
-        
+        public DrawingBrush LogoBrush { get; }
+
         public string Version => AppService.Instance.CurrentVersion;
 
         [ObservableProperty]
@@ -48,6 +49,9 @@ namespace CombasLauncherApp.UI
         private bool _isStatusOpen;
 
         [ObservableProperty]
+        private bool _isBuildPageOpen;
+
+        [ObservableProperty]
         private bool _isDeveloperMenuOpen;
 
         [ObservableProperty]
@@ -61,6 +65,9 @@ namespace CombasLauncherApp.UI
 
         [ObservableProperty]
         private DeveloperHomePageViewModel _developerHomePageViewModel = new();
+
+        [ObservableProperty]
+        private BuildManagerPageViewModel _buildManagerPageViewModel = new();
 
         [ObservableProperty]
         private ObservableObject? _currentPage = new HomePageViewModel();
@@ -81,13 +88,13 @@ namespace CombasLauncherApp.UI
                 _mediaPlayer.Play();
             };
 
-            var videoDrawing = new VideoDrawing
+            var logoDrawing = new VideoDrawing
             {
                 Player = _mediaPlayer,
                 Rect = new System.Windows.Rect(0, 0, 700, 500)
             };
 
-            _videoBrush = new DrawingBrush(videoDrawing);
+            LogoBrush = new DrawingBrush(logoDrawing);
 
             _mediaPlayer.Play();
         }
@@ -110,37 +117,82 @@ namespace CombasLauncherApp.UI
         [RelayCommand]
         private void OpenDeveloperMenu()
         {
-            IsSettingsOpen = false;
-            IsStatusOpen = false;
-            IsDeveloperMenuOpen = !IsDeveloperMenuOpen;
+            TogglePage(PageTypes.DeveloperMenu, !IsDeveloperMenuOpen);
         }
 
         [RelayCommand]
         private void OpenSettingsPage()
-        {
-            IsDeveloperMenuOpen = false;
-            IsStatusOpen = false;
-            IsSettingsOpen = !IsSettingsOpen;
+        { 
+            TogglePage(PageTypes.Settings, !IsSettingsOpen);
         }
 
         [RelayCommand]
         private void OpenStatusPage()
         {
-            IsDeveloperMenuOpen = false;
-            IsSettingsOpen = false;
-
             if (!IsStatusOpen)
             {
+
                 XeniaPath = _xeniaService.XeniaPath;
                 IsXeniaFound = _xeniaService.XeniaFound;
                 ChromeHoundsExtracted = AppService.Instance.ChromeHoundsExtracted;
             }
-
-
-            IsStatusOpen = !IsStatusOpen;
+            
+            TogglePage(PageTypes.Status, !IsStatusOpen);
         }
 
-     
+        [RelayCommand]
+        private void OpenBuildManagerPage()
+        {
+            TogglePage(PageTypes.BuildManager, !IsBuildPageOpen);
+        }
+
+
+        /// <summary>
+        /// Resets all page state flags to their default values, closing any open pages in the user interface.
+        /// </summary>
+        /// <remarks>Call this method to ensure that all page-related UI flags are set to closed. This is
+        /// useful when resetting the application state or navigating away from the current context.</remarks>
+        private void ResetPageFlags()
+        {
+            IsSettingsOpen = false;
+            IsStatusOpen = false;
+            IsDeveloperMenuOpen = false;
+            IsBuildPageOpen = false;
+        }
+
+        /// <summary>
+        /// Toggles the visibility state of the specified page by setting its open flag to the given value.
+        /// </summary>
+        /// <remarks>Calling this method will reset all page visibility flags before updating the
+        /// specified page. Only the selected page will be set to the provided state; all others will be
+        /// closed.</remarks>
+        /// <param name="page">The page to toggle. Specifies which page's visibility state will be changed.</param>
+        /// <param name="value">A value indicating whether the page should be open (<see langword="true"/>) or closed (<see
+        /// langword="false"/>).</param>
+        private void TogglePage(PageTypes page, bool value)
+        {
+            ResetPageFlags();
+
+            switch (page)
+            {
+                case PageTypes.Settings:
+                    IsSettingsOpen = value;
+                    break;
+                case PageTypes.Status:
+                    IsStatusOpen = value;
+                    break;
+                case PageTypes.DeveloperMenu:
+                    IsDeveloperMenuOpen = value;
+                    break;
+                case PageTypes.BuildManager:
+                    IsBuildPageOpen = value;
+                    break;
+
+            }
+        }
+
+      
+
     }
 
 }
