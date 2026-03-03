@@ -9,31 +9,57 @@
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:BuildManagerPageViewModel}">
     <UserControl.Resources>
         <!-- Child template for BuildEntry -->
-        <DataTemplate DataType="{x:Type models:BuildEntry}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding Name}" Width="140" Margin="0,0,5,0"/>
-                <TextBlock Grid.Column="1" Text="{Binding BuildDate}" />
-            </Grid>
-        </DataTemplate>
-        <!-- Parent template for BuildCollection -->
-        <HierarchicalDataTemplate DataType="{x:Type local:BuildCollection}" ItemsSource="{Binding Builds}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding Name}" Margin="0,0,5,0"/>
-                <TextBlock Grid.Column="1" Text="{Binding Builds.Count, StringFormat={}{0} / 50}" />
-                <Button Grid.Column="2" Content="{StaticResource LOC_Delete}"
-                        Command="{Binding  RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.DeleteCollectionCommand}"
-                        CommandParameter="{Binding}"/>
-           </Grid>
-        </HierarchicalDataTemplate>
+      
+        <Style x:Key="StretchExpander" TargetType="Expander">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <Border
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <ToggleButton Grid.Row="0" Grid.Column="0"
+                                              x:Name="IconSite"
+                                              IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                              Focusable="False"
+                                              Background="Transparent"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalContentAlignment="Center">
+                                    <ToggleButton.Style>
+                                        <Style TargetType="ToggleButton" BasedOn="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}">
+                                            <Setter Property="Content" Value="+"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Value="True">
+                                                    <Setter Property="Content" Value="-"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ToggleButton.Style>
+                                </ToggleButton>
+                                <ContentPresenter Grid.Row="0" Grid.Column="1" x:Name="HeaderSite" Content="{TemplateBinding Header}"
+                                                  ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                                  />
+                                <ContentPresenter Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                    x:Name="ExpandSite"
+                                    Visibility="{TemplateBinding IsExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    Content="{TemplateBinding Content}"
+                                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                                    Margin="{TemplateBinding Padding}" />
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
     <Grid>
@@ -51,12 +77,32 @@
                 <RowDefinition Height="Auto"/>
 
             </Grid.RowDefinitions>
-            <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" Margin="10" Background="{StaticResource OverlayBackground}">
-                <TextBlock Text="Build Collections" FontWeight="Bold" FontSize="16" Margin="10,2"/>
-                <ItemsControl ItemsSource="{Binding BuildCollections}">
+            <Grid Grid.Column="0" Grid.Row="0" Margin="10" Background="{StaticResource OverlayBackground}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Build Collections" FontWeight="Bold" FontSize="16" Margin="10,2"/>
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding BuildCollections}" >
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Expander Header="{Binding Name}" IsExpanded="False" Margin="0,0,0,5">
+                            <Expander Header="{Binding }" Style="{StaticResource StretchExpander}" IsExpanded="False" Margin="0,0,0,5">
+                                <Expander.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Grid >
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding Name}" Margin="0,0,0,0"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Builds.Count, StringFormat={}{0} / 50}" Margin="5,0"/>
+                                            <Button Grid.Column="2" Content="{StaticResource LOC_Delete}"
+                                                    Command="{Binding  RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.DeleteCollectionCommand}"
+                                                    CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </Expander.HeaderTemplate>
                                 <ItemsControl ItemsSource="{Binding Builds}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -71,7 +117,7 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-            </StackPanel>
+            </Grid>
             <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" Margin="10">
                 <TextBox x:Name="CreateCollectionNameBox" Width="200" Margin="0,0,10,0" />
                 <Button Content="{StaticResource LOC_Create}"
