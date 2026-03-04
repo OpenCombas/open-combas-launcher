@@ -35,6 +35,7 @@ namespace CombasLauncherApp.UI.Pages.BuildManagerPage
         [ObservableProperty]
         private BuildEntry? _selectedCollectionBuild;
 
+        
 
         [ObservableProperty]
         private ObservableCollection<BuildEntry> _currentLoadedBuilds = [];

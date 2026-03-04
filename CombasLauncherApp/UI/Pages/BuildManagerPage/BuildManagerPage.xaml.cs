@@ -24,18 +24,7 @@ namespace CombasLauncherApp.UI.Pages.BuildManagerPage
         {
             InitializeComponent();
         }
-
-        private void BuildCollections_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            if (DataContext is BuildManagerPageViewModel vm)
-            {
-                if (e.NewValue is BuildEntry buildEntry)
-                {
-                    vm.SelectedCollectionBuild = buildEntry;
-                }
-            }
-        }
-
+        
   
     }
 }

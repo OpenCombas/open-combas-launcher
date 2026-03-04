@@ -7,71 +7,15 @@
              xmlns:models="clr-namespace:CombasLauncherApp.Models"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" d:DataContext="{d:DesignInstance local:BuildManagerPageViewModel}">
-    <UserControl.Resources>
-        <!-- Child template for BuildEntry -->
-      
-        <Style x:Key="StretchExpander" TargetType="Expander">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Expander">
-                        <Border
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <ToggleButton Grid.Row="0" Grid.Column="0"
-                                              x:Name="IconSite"
-                                              IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                              Focusable="False"
-                                              Background="Transparent"
-                                              HorizontalAlignment="Stretch"
-                                              VerticalContentAlignment="Center">
-                                    <ToggleButton.Style>
-                                        <Style TargetType="ToggleButton" BasedOn="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}">
-                                            <Setter Property="Content" Value="+"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Value="True">
-                                                    <Setter Property="Content" Value="-"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </ToggleButton.Style>
-                                </ToggleButton>
-                                <ContentPresenter Grid.Row="0" Grid.Column="1" x:Name="HeaderSite" Content="{TemplateBinding Header}"
-                                                  ContentTemplate="{TemplateBinding HeaderTemplate}"
-                                                  />
-                                <ContentPresenter Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                                    x:Name="ExpandSite"
-                                    Visibility="{TemplateBinding IsExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                    Content="{TemplateBinding Content}"
-                                    ContentTemplate="{TemplateBinding ContentTemplate}"
-                                    Margin="{TemplateBinding Padding}" />
-                            </Grid>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </UserControl.Resources>
+    
 
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition Height="Auto"/>
@@ -82,37 +26,48 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Text="Build Collections" FontWeight="Bold" FontSize="16" Margin="10,2"/>
-                <ItemsControl Grid.Row="1" ItemsSource="{Binding BuildCollections}" >
+                <Grid Grid.Row="0" Background="{StaticResource ButtonHoverBrush}">
+                    <TextBlock Text="Build Collections" FontWeight="Bold" FontSize="16" Margin="10,2"/>
+                </Grid>
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding BuildCollections}" Margin="5">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Expander Header="{Binding }" Style="{StaticResource StretchExpander}" IsExpanded="False" Margin="0,0,0,5">
+                            <Expander Header="{Binding }" IsExpanded="False" Margin="0,5,0,0">
                                 <Expander.HeaderTemplate>
                                     <DataTemplate>
-                                        <Grid >
+                                        <Grid Margin="0,0,5,0">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="{Binding Name}" Margin="0,0,0,0"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding Builds.Count, StringFormat={}{0} / 50}" Margin="5,0"/>
-                                            <Button Grid.Column="2" Content="{StaticResource LOC_Delete}"
-                                                    Command="{Binding  RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.DeleteCollectionCommand}"
-                                                    CommandParameter="{Binding}"/>
+                                            <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="Bold" FontSize="16" VerticalAlignment="Center" Margin="0,0,0,0"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Builds.Count, StringFormat={}{0} / 50}" FontWeight="Bold" FontSize="16" VerticalAlignment="Center" Margin="5,0"/>
+                                            <Button Grid.Column="2" Content="{StaticResource LOC_Delete}" FontWeight="Bold"
+                                                    Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.DeleteCollectionCommand}"
+                                                    CommandParameter="{Binding}" Padding="8"/>
                                         </Grid>
                                     </DataTemplate>
                                 </Expander.HeaderTemplate>
-                                <ItemsControl ItemsSource="{Binding Builds}">
-                                    <ItemsControl.ItemTemplate>
+                                <ListBox ItemsSource="{Binding Builds}" 
+                                         SelectedItem="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.SelectedCollectionBuild, Mode=TwoWay}" 
+                                         Margin="5"
+                                         AllowDrop="True"
+                                         Background="Transparent"
+                                         BorderThickness="0" HorizontalContentAlignment="Stretch">
+                                    <ListBox.ItemTemplate>
                                         <DataTemplate>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Name}" Width="140" Margin="0,0,5,0"/>
-                                                <TextBlock Text="{Binding BuildDate}" />
-                                            </StackPanel>
+                                            <Grid >
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="16" FontWeight="Bold" Margin="0,0,5,0"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding BuildDate}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                            </Grid>
                                         </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
                             </Expander>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -125,37 +80,73 @@
                         CommandParameter="{Binding Text, ElementName=CreateCollectionNameBox}" />
              
             </StackPanel>
-            <Image Grid.Row="0" Grid.Column="1" Source="{Binding SelectedCollectionBuild.Image, FallbackValue='Resources/OopsImage.png'}" />
+          
                     
         </Grid>
-        <Grid Grid.Column="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
+        <Grid Grid.Column="1" Margin="30,10,30,10">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="20"/>
+                <RowDefinition/>
+
+            </Grid.RowDefinitions> 
+            <Viewbox  HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-30,0,0,0">
+                <Canvas Width="80" Height="80">
+                    <Path Stroke="{StaticResource ButtonHoverBrush}" StrokeThickness="0" Fill="{StaticResource ButtonHoverBrush}"
+                          Data="M5,10 L20,10 L20,70 L5,70 L0,40 Z"/>
+                </Canvas>
+            </Viewbox>
+            <Border Grid.Row="0" Background="{StaticResource OverlayBackground}" BorderThickness="2" BorderBrush="{StaticResource ButtonHoverBrush}" Margin="0,0,-30,0">
+                <Image Source="{Binding SelectedCollectionBuild.Image, FallbackValue='Resources/OopsImage.png'}" /> 
+            </Border>
+
+            <Viewbox Grid.Row="2"  HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,-30,0">
+                <Canvas Width="80" Height="80">
+                    <Path Stroke="{StaticResource ButtonHoverBrush}" StrokeThickness="0" Fill="{StaticResource ButtonHoverBrush}"
+                          Data="M75,10 L60,10 L60,70 L75,70 L80,40 Z"/>
+                </Canvas>
+            </Viewbox>
+            <Border Grid.Row="2" Background="{StaticResource OverlayBackground}" BorderThickness="2" BorderBrush="{StaticResource ButtonHoverBrush}" Margin="-30,0,0,0">
+                <Image Source="{Binding SelectedLoadedBuild.Image, FallbackValue='Resources/OopsImage.png'}" />
+            </Border>
+        </Grid>
+        <Grid Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition Height="Auto"/>
-
             </Grid.RowDefinitions>
             <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" Margin="10" Background="{StaticResource OverlayBackground}">
-                <TextBlock Text="Loaded Builds" FontWeight="Bold" FontSize="16" Margin="10,2"/>
-                <TextBlock Text="{Binding CurrentLoadedBuilds.Count, StringFormat={}{0} / 50}" Margin="10,2"/>
-
-                <ListView ItemsSource="{Binding CurrentLoadedBuilds}"
-                          SelectedItem="{Binding SelectedLoadedBuild}"
-                          DisplayMemberPath="Name" Margin="10">
-                    <ListView.View>
-                        <GridView AllowsColumnReorder="False" >
-                            <GridViewColumn Header="{StaticResource LOC_Name}" DisplayMemberBinding="{Binding Name}" Width="140"/>
-                            <GridViewColumn Header="{StaticResource LOC_Date}" DisplayMemberBinding="{Binding BuildDate}" Width="200"/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
+                <Grid Background="{StaticResource ButtonHoverBrush}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Loaded Builds" FontWeight="Bold" FontSize="16" Margin="10,2"/>
+                    <TextBlock Grid.Column="1" Text="{Binding CurrentLoadedBuilds.Count, StringFormat={}{0} / 50}" FontWeight="Bold" FontSize="16" Margin="10,2"/>
+                </Grid>
+                <ListBox ItemsSource="{Binding CurrentLoadedBuilds}" 
+                         SelectedItem="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}, Path=DataContext.SelectedLoadedBuild, Mode=TwoWay}" 
+                         Margin="5"
+                         AllowDrop="True"
+                         Background="Transparent"
+                         BorderThickness="0" HorizontalContentAlignment="Stretch">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid >
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="16" FontWeight="Bold" Margin="0,0,5,0"/>
+                                <TextBlock Grid.Column="1" Text="{Binding BuildDate}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Right"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
 
 
             </StackPanel>
-            <Image Grid.Row="0" Grid.Column="1" Source="{Binding SelectedLoadedBuild.Image, FallbackValue='Resources/OopsImage.png'}" />
+           
 
         </Grid>
     </Grid>

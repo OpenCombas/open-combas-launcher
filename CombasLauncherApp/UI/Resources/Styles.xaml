@@ -129,6 +129,7 @@
             </Setter.Value>
         </Setter>
     </Style>
+
     <Style TargetType="{x:Type ToggleButton}" >
         <Setter Property="Background" Value="{StaticResource ButtonBrush}"/>
        
@@ -232,5 +233,68 @@
         </Setter>
     </Style>
 
-
+    <Style TargetType="{x:Type Expander}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Expander">
+                    <Border
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <ToggleButton Grid.Row="0" Grid.Column="0"
+                                          x:Name="IconSite"
+                                          IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Focusable="False"
+                                          Background="Transparent"
+                                          HorizontalAlignment="Center"
+                                          VerticalContentAlignment="Center" Width="50" Padding="8">
+                                <Viewbox>
+                                    <Grid>
+                                        <Path x:Name="ArrowUp"
+                                              Fill="Black"
+                                              Data="M 0 4 L 4 0 L 8 4 Z"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" Visibility="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        <Path x:Name="ArrowDown"
+                                              Fill="Black"
+                                              Data="M 0 0 L 4 4 L 8 0 Z"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" Visibility="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BooleanNotVisibilityConverter}}"/>
+                                    </Grid>
+                                </Viewbox>
+                                <ToggleButton.Style>
+                                    <Style TargetType="ToggleButton" BasedOn="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}">
+                                        <Setter Property="Content" Value="+"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Value="True">
+                                                <Setter Property="Content" Value="-"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ToggleButton.Style>
+                            </ToggleButton>
+                            <ContentPresenter Grid.Row="0" Grid.Column="1" x:Name="HeaderSite" Content="{TemplateBinding Header}"
+                                              ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                              />
+                            <ContentPresenter Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                x:Name="ExpandSite"
+                                Visibility="{TemplateBinding IsExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                Margin="{TemplateBinding Padding}" />
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>
