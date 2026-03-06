@@ -11,7 +11,7 @@
         xmlns:helixSharp="http://helix-toolkit.org/wpf/SharpDX"
         xmlns:buildManagerPage="clr-namespace:CombasLauncherApp.UI.Pages.BuildManagerPage"
         mc:Ignorable="d"
-        Title="{Binding Version}" Height="500" Width="700"  Background="{StaticResource MainBackground}" d:DataContext="{d:DesignInstance ui:MainWindowViewModel}">
+        Title="{Binding Version}" MinHeight="540" MinWidth="870" Height="540" Width="870" Background="{StaticResource MainBackground}" d:DataContext="{d:DesignInstance ui:MainWindowViewModel}">
     
     <!-- Window Resources, primarily navigation templates for the content presenter -->
     <Window.Resources>
@@ -21,7 +21,7 @@
     </Window.Resources>
     
     
-    <Grid  Margin="5">
+    <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition />

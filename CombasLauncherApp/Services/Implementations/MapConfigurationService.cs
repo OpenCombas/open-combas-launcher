@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CombasLauncherApp.Models;
 using SoulsFormats;
 using System.IO;
@@ -9,6 +10,7 @@ namespace CombasLauncherApp.Services.Implementations
     /// </summary>
     public class MapConfigurationService
     {
+       
         /// <summary>
         /// Reads map configuration data from the specified binary and localization files, and returns a list of map
         /// entries with localized names.
@@ -88,13 +90,16 @@ namespace CombasLauncherApp.Services.Implementations
 
             foreach (var row in param.Rows)
             {
-                var mapUid = row.Cells.FirstOrDefault(n => n.InternalName == "mapUid")?.Value;
+                var mapFolderNumberPart1 = (int)(short)(row.Cells.FirstOrDefault(n => n.InternalName == "mapFolderNum1")?.Value ?? 0);
 
-                if (mapUid == null)
-                {
-                    continue;
-                }
-                
+                var mapFolderNumberPart2 = (int)(short)(row.Cells.FirstOrDefault(n => n.InternalName == "mapFolderNum2")?.Value ?? 0);
+
+                var mapTimeOfDayNumber = (int)(ushort)(row.Cells.FirstOrDefault(n => n.InternalName == "mapTimeOfDay")?.Value ?? 0);
+
+                // Split into hour and minute
+                var timeOfDayHour = mapTimeOfDayNumber / 100;
+                var timeOfDayMinute = mapTimeOfDayNumber % 100;
+
                 var mapNameId = row.Cells.FirstOrDefault(n => n.InternalName == "mapNameId")?.Value;
 
                 if (mapNameId == null)
@@ -115,15 +120,22 @@ namespace CombasLauncherApp.Services.Implementations
 
                 maps.Add(new MapEntry
                 {
+                    MapFolderNumPart1 = mapFolderNumberPart1,
+                    MapFolderNumPart2 = mapFolderNumberPart2,
+                    TimeOfDayHour = timeOfDayHour,
+                    TimeOfDayMinute = timeOfDayMinute,
                     paramRowId = row.ID,
-                    MapUid = (uint)mapUid, 
                     Enabled = mapEnabled,
                     MapName = mapName,
                     MapSizeX = mapSizeX,
                     MapSizeY = mapSizeY,
                 });
+
+                
             }
             
+            maps =  maps.OrderBy(m=>m.MapName).ToList();
+        
             return maps;
         }
 
@@ -142,7 +154,7 @@ namespace CombasLauncherApp.Services.Implementations
         /// <exception cref="FileNotFoundException">Thrown if <paramref name="binFilePath"/> or <paramref name="fmgFilePath"/> does not refer to an existing
         /// file.</exception>
         public int WriteMapConfiguration(string binFilePath, string paramDefPath, string fmgFilePath, List<MapEntry> maps,
-            bool createBackup = true, bool reorder = false)
+            bool createBackup = true)
         {
             if (!File.Exists(fmgFilePath))
             {
@@ -154,14 +166,7 @@ namespace CombasLauncherApp.Services.Implementations
                 throw new FileNotFoundException($"Binary file not found: {binFilePath}");
             }
 
-            if (!reorder)
-            {
-                WriteMapBinary(binFilePath, paramDefPath, maps, createBackup);
-            }
-            else
-            {
-                WriteMapBinaryReordered(binFilePath, paramDefPath, maps, createBackup);
-            }
+            WriteMapBinaryReordered(binFilePath, paramDefPath, maps, createBackup);
 
             UpdateFmg(fmgFilePath, maps);
 
@@ -259,7 +264,7 @@ namespace CombasLauncherApp.Services.Implementations
             }
 
             // First pass: assign temporary IDs to avoid collisions
-            var tempIdBase = int.MinValue + 1000; // unlikely to conflict
+            var tempIdBase = int.MinValue + 10000; // unlikely to conflict
             foreach (var rowIdChange in rowIdChanges)
             {
                 if (rowsToUpdate.TryGetValue(rowIdChange.Key, out var row))

@@ -6,21 +6,23 @@
   <Unicode>False</Unicode>
   <FormatVersion>0</FormatVersion>
   <Fields>
-  <Field Def="u32 mapUid">
-		<DisplayName>Map UID</DisplayName>
+  <Field Def="s16 mapFolderNum1">
+		<DisplayName>Map Folder Upper Number</DisplayName>
 	</Field>
-	
-	<Field Def="s16 unk04">
+  <Field Def="s16 mapFolderNum2">
+    <DisplayName>Map Folder Lower Number</DisplayName>
+  </Field>
+  <Field Def="u16 unk04">
 		<DisplayName>unk04</DisplayName>
 	</Field>
-	<Field Def="s16 unk06">
-		<DisplayName>unk06</DisplayName>
+	<Field Def="s16 mapDescriptionId">
+		<DisplayName>Map Description ID</DisplayName>
 	</Field>
 	<Field Def="s32 mapNameId">
 		<DisplayName>Map Name ID</DisplayName>
 	</Field>
-	<Field Def="u16 unk0C">
-		<DisplayName>unk0C</DisplayName>
+	<Field Def="u16 mapTimeOfDay">
+		<DisplayName>Map Time Of Day</DisplayName>
 	</Field>
 	<Field Def="u16 mapSizeX">
 		<DisplayName>Map Size X</DisplayName>
@@ -30,6 +32,7 @@
 	</Field>
 	<Field Def="u8 unk12">
 		<DisplayName>unk12</DisplayName>
+    <!-- Potential Weather index see 31 weather entries under id 2001 fmg, i dont think they change -->
 	</Field>
 	<Field Def="u8 bFreeBattle">
 		<DisplayName>Free Battles Enabled</DisplayName>

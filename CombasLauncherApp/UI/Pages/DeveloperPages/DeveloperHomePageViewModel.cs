@@ -69,8 +69,9 @@ namespace CombasLauncherApp.UI.Pages.DeveloperPages
 
             var selectedMaps = Maps.OrderByDescending(m => m.Enabled).ToList();
 
+
             // Write changes back
-            service.WriteMapConfiguration(Path.Combine(menuDir, "MenuMapInfo.bin"), Path.Combine(paramDir, "MenuMapInfo.xml"), Path.Combine(menuDir, "MenuText_Eng.fmg"), selectedMaps, createBackup: true, ReOrder);
+            service.WriteMapConfiguration(Path.Combine(menuDir, "MenuMapInfo.bin"), Path.Combine(paramDir, "MenuMapInfo.xml"), Path.Combine(menuDir, "MenuText_Eng.fmg"), selectedMaps, createBackup: true);
 
         }
 
