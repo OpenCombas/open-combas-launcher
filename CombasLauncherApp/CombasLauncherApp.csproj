@@ -76,4 +76,10 @@
     <Resource Include="UI\Resources\OpenCOMBAS.ico" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="UI\Resources\Logo.mp4">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

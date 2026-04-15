@@ -30,7 +30,7 @@ namespace CombasLauncherApp.UI.Pages.DeveloperPages
 
         public DeveloperHomePageViewModel()
         {
-            ReadCurrentMapPack();
+
         }
 
         [RelayCommand]
